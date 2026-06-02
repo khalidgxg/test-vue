@@ -1,6 +1,6 @@
 ---
 name: vue-nuxt-module-recommender
-description: "Recommends trusted Vue and Nuxt modules, packages, and composable libraries when detecting code patterns or feature requests that could benefit from an existing solution. Suggests official Nuxt modules, VueUse, and community-vetted packages to save development time."
+description: 'Recommends trusted Vue and Nuxt modules, packages, and composable libraries when detecting code patterns or feature requests that could benefit from an existing solution. Suggests official Nuxt modules, VueUse, and community-vetted packages to save development time.'
 ---
 
 # Vue / Nuxt Module Recommender
@@ -41,6 +41,7 @@ When recommending a module, provide:
 5. **Docs link**: Link to official documentation.
 
 **Recommendation format:**
+
 ```
 📦 Recommended Module: {module-name}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -75,8 +76,8 @@ This is the curated list of trusted, production-grade modules and packages organ
 
 ### 1 — Utility Composables (VueUse)
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                                                   | Module         | Install                            |
+| ------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------- |
 | User needs common composables: debounce, throttle, localStorage, clipboard, resize observer, etc. | `@vueuse/nuxt` | `npx nuxi module add @vueuse/nuxt` |
 
 **Why not custom?** VueUse provides 200+ composables covering browser APIs, sensors, animations, state, and more. Writing them manually is reinventing the wheel.
@@ -96,8 +97,8 @@ const { data, isFinished } = useLocalStorage('user-prefs', { theme: 'dark' })
 
 ### 2 — UI Component Library
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                             | Module     | Install                        |
+| ----------------------------------------------------------- | ---------- | ------------------------------ |
 | User asks for UI components, design system, form components | `@nuxt/ui` | `npx nuxi module add @nuxt/ui` |
 
 **Why not custom?** Building accessible, responsive, themed components from scratch takes weeks. Nuxt UI provides 50+ components with dark mode, keyboard navigation, and Tailwind integration.
@@ -118,9 +119,9 @@ const { data, isFinished } = useLocalStorage('user-prefs', { theme: 'dark' })
 
 ### 3 — Form Validation
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
-| User asks for form validation, schema validation, input validation | `zod` | `npm install zod` |
+| Trigger Pattern                                                    | Module | Install           |
+| ------------------------------------------------------------------ | ------ | ----------------- |
+| User asks for form validation, schema validation, input validation | `zod`  | `npm install zod` |
 
 **Why not custom?** Schema-based validation with type inference, composable schemas, and error formatting. Works on both client and server.
 
@@ -150,8 +151,8 @@ if (!result.success) {
 
 ### 4 — Image Optimization
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                              | Module        | Install                           |
+| ---------------------------------------------------------------------------- | ------------- | --------------------------------- |
 | User asks for image optimization, responsive images, lazy loading, WebP/AVIF | `@nuxt/image` | `npx nuxi module add @nuxt/image` |
 
 **Why not custom?** Automatic format conversion (WebP/AVIF), responsive srcset, lazy loading, and CDN provider support.
@@ -176,8 +177,8 @@ if (!result.success) {
 
 ### 5 — SEO & Meta Tags
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                     | Module        | Install                           |
+| ------------------------------------------------------------------- | ------------- | --------------------------------- |
 | User asks for SEO, sitemap, robots.txt, Open Graph, structured data | `@nuxtjs/seo` | `npx nuxi module add @nuxtjs/seo` |
 
 **Why not custom?** Comprehensive SEO toolkit: sitemap generation, robots.txt, Open Graph images, schema.org structured data, and canonical URLs — all auto-configured.
@@ -200,8 +201,8 @@ export default defineNuxtConfig({
 
 ### 6 — Internationalization (i18n)
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                   | Module         | Install                            |
+| ----------------------------------------------------------------- | -------------- | ---------------------------------- |
 | User asks for multi-language, translations, RTL, locale switching | `@nuxtjs/i18n` | `npx nuxi module add @nuxtjs/i18n` |
 
 **Why not custom?** Full i18n with lazy-loaded locales, SEO-friendly URL prefixes, RTL support, and pluralization.
@@ -219,8 +220,8 @@ export default defineNuxtConfig({
 
 ### 7 — Authentication
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                      | Module            | Install                               |
+| ---------------------------------------------------- | ----------------- | ------------------------------------- |
 | User asks for auth, login, OAuth, session management | `nuxt-auth-utils` | `npx nuxi module add nuxt-auth-utils` |
 
 **Why not custom?** Secure session management, OAuth providers (GitHub, Google, etc.), and server-side session handling with zero client-side token exposure.
@@ -243,8 +244,8 @@ export default defineOAuthGitHubEventHandler({
 
 ### 8 — Icons
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                              | Module       | Install                          |
+| -------------------------------------------- | ------------ | -------------------------------- |
 | User asks for icons, SVG icons, icon library | `@nuxt/icon` | `npx nuxi module add @nuxt/icon` |
 
 **Why not custom?** Access to 200,000+ icons from Iconify with on-demand loading, SSR support, and zero bundle bloat.
@@ -262,8 +263,8 @@ export default defineOAuthGitHubEventHandler({
 
 ### 9 — Fonts
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                             | Module        | Install                           |
+| ----------------------------------------------------------- | ------------- | --------------------------------- |
 | User asks for custom fonts, Google Fonts, font optimization | `@nuxt/fonts` | `npx nuxi module add @nuxt/fonts` |
 
 **Why not custom?** Automatic font optimization, self-hosting, and preloading. Eliminates FOUT/FOIT and improves CLS.
@@ -281,8 +282,8 @@ export default defineNuxtConfig({
 
 ### 10 — Content Management (CMS)
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                          | Module          | Install                             |
+| -------------------------------------------------------- | --------------- | ----------------------------------- |
 | User asks for blog, documentation, Markdown content, CMS | `@nuxt/content` | `npx nuxi module add @nuxt/content` |
 
 **Why not custom?** File-based CMS with Markdown/MDC, full-text search, content navigation, and Vue component embedding in Markdown.
@@ -299,8 +300,8 @@ export default defineNuxtConfig({
 
 ### 11 — Date & Time
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                 | Module  | Install             |
+| --------------------------------------------------------------- | ------- | ------------------- |
 | User asks for date formatting, relative time, date manipulation | `dayjs` | `npm install dayjs` |
 
 **Why not custom?** Lightweight (2KB), immutable, chainable date library with locale and plugin support.
@@ -322,17 +323,15 @@ const ago = dayjs(date).fromNow() // "3 hours ago"
 
 ### 12 — Animation & Motion
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                  | Module           | Install                      |
+| ---------------------------------------------------------------- | ---------------- | ---------------------------- |
 | User asks for animations, transitions, motion, scroll animations | `@vueuse/motion` | `npm install @vueuse/motion` |
 
 **Why not custom?** Declarative motion directives with spring physics, gesture support, and SSR safety.
 
 ```vue
 <template>
-  <div v-motion-slide-bottom>
-    Slides in from bottom on mount
-  </div>
+  <div v-motion-slide-bottom>Slides in from bottom on mount</div>
 </template>
 ```
 
@@ -344,8 +343,8 @@ const ago = dayjs(date).fromNow() // "3 hours ago"
 
 ### 13 — Charts & Visualization
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                  | Module        | Install                            |
+| ------------------------------------------------ | ------------- | ---------------------------------- |
 | User asks for charts, graphs, data visualization | `vue-chartjs` | `npm install vue-chartjs chart.js` |
 
 **Why not custom?** Reactive Chart.js wrapper for Vue with TypeScript support and all chart types.
@@ -370,8 +369,8 @@ Chart.register(BarElement, CategoryScale, LinearScale)
 
 ### 14 — Testing
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                          | Module                       | Install                                                  |
+| -------------------------------------------------------- | ---------------------------- | -------------------------------------------------------- |
 | User asks for unit tests, component tests, testing setup | `vitest` + `@vue/test-utils` | `npm install -D vitest @vue/test-utils @nuxt/test-utils` |
 
 **Why not custom?** Vitest is the standard test runner for Vue/Nuxt with Vite-native speed, and `@vue/test-utils` provides component mounting, event simulation, and assertion helpers.
@@ -396,8 +395,8 @@ describe('UserCard', () => {
 
 ### 15 — DevTools
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                               | Module           | Install              |
+| ----------------------------------------------------------------------------- | ---------------- | -------------------- |
 | User asks for debugging, devtools, component inspector, performance profiling | `@nuxt/devtools` | Built-in with Nuxt 4 |
 
 **Why essential?** Visual component tree, Pinia state inspector, route visualization, API playground, and performance profiling — all in-browser.
@@ -413,8 +412,8 @@ describe('UserCard', () => {
 
 ### 16 — Styling (Tailwind CSS)
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                               | Module                | Install                                   |
+| --------------------------------------------- | --------------------- | ----------------------------------------- |
 | User asks for Tailwind CSS, utility-first CSS | `@nuxtjs/tailwindcss` | `npx nuxi module add @nuxtjs/tailwindcss` |
 
 **Why not custom?** Zero-config Tailwind integration with HMR, PurgeCSS, and Nuxt-aware content paths.
@@ -427,8 +426,8 @@ describe('UserCard', () => {
 
 ### 17 — WebSocket / Real-Time
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                        | Module             | Install                        |
+| ------------------------------------------------------ | ------------------ | ------------------------------ |
 | User asks for real-time, WebSocket, live updates, chat | `socket.io-client` | `npm install socket.io-client` |
 
 **Why not custom?** Reliable WebSocket with automatic reconnection, fallback to long-polling, and rooms/namespaces.
@@ -456,19 +455,23 @@ export function useSocket() {
 
 ### 18 — State Persistence
 
-| Trigger Pattern | Module | Install |
-|---|---|---|
+| Trigger Pattern                                                 | Module                        | Install                                   |
+| --------------------------------------------------------------- | ----------------------------- | ----------------------------------------- |
 | User asks for persisted state, localStorage sync, offline state | `pinia-plugin-persistedstate` | `npm install pinia-plugin-persistedstate` |
 
 **Why not custom?** Automatic Pinia store persistence to localStorage/sessionStorage/cookies with SSR support.
 
 ```typescript
-export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(null)
-  return { token }
-}, {
-  persist: true, // Auto-persists to localStorage
-})
+export const useAuthStore = defineStore(
+  'auth',
+  () => {
+    const token = ref<string | null>(null)
+    return { token }
+  },
+  {
+    persist: true, // Auto-persists to localStorage
+  },
+)
 ```
 
 **Docs:** https://prazdevs.github.io/pinia-plugin-persistedstate/
@@ -478,6 +481,7 @@ export const useAuthStore = defineStore('auth', () => {
 ## Best Practices & Rules
 
 ### Mandatory Rules
+
 - **MUST** check `package.json` for existing dependencies before recommending.
 - **MUST** verify module compatibility with detected Vue/Nuxt/Node versions.
 - **MUST** always propose before installing — never install silently.
@@ -485,6 +489,7 @@ export const useAuthStore = defineStore('auth', () => {
 - **MUST** prefer modules with TypeScript support.
 
 ### Safety Rules
+
 - **MUST NOT** recommend unmaintained packages (last commit > 1 year).
 - **MUST NOT** recommend packages with known security vulnerabilities.
 - **MUST NOT** recommend multiple packages that solve the same problem — pick the best one.

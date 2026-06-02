@@ -48,6 +48,7 @@ When writing code, **always prefer** the newer pattern if available in the detec
 Since Vue/Nuxt release minor versions frequently, the Agent **MUST search the web** for the latest changelog when the detected minor version is newer than what this skill documents.
 
 **Search query template:**
+
 ```
 Vue {version} new features changelog
 Nuxt {version} new features changelog
@@ -391,11 +392,15 @@ const config = {
 
 ```typescript
 // ❌ OLD PATTERN — Loses literal types in generics
-function createRoute<T extends string>(path: T) { return path }
+function createRoute<T extends string>(path: T) {
+  return path
+}
 const route = createRoute('users') // type: string (too wide)
 
 // ✅ MODERN PATTERN (TypeScript 5.0+) — const type parameter
-function createRoute<const T extends string>(path: T) { return path }
+function createRoute<const T extends string>(path: T) {
+  return path
+}
 const route = createRoute('users') // type: 'users' (exact literal)
 ```
 
@@ -440,6 +445,7 @@ Priority:
 ## Best Practices & Rules
 
 ### Mandatory Rules
+
 - **MUST** detect Vue, Nuxt, and TypeScript versions from `package.json` before writing any code.
 - **MUST** use the modern pattern from the Feature Registry when available for the detected version.
 - **MUST** search the web for the latest changelog when the detected version is newer than documented here.
@@ -447,11 +453,13 @@ Priority:
 - **MUST** read official Vue/Nuxt release blogs for features not covered in this registry.
 
 ### Safety Rules
+
 - **MUST NOT** suggest features from a Vue/Nuxt/TypeScript version newer than what the project uses.
 - **MUST NOT** force migration to new patterns on existing code unless the user requests a refactoring session.
 - **MUST NOT** mix old and new patterns within the same component — pick one style consistently.
 - **MUST** verify that a feature exists in the detected version before using it — when uncertain, search the docs.
 
 ### Continuous Learning Rules
+
 - **MUST** search the web for the latest Vue/Nuxt release notes at least once per session when the detected version is the latest major version.
 - **MUST** suggest new features to the user when writing code that could benefit from them — explain the old vs. new approach.

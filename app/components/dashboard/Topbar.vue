@@ -1,7 +1,17 @@
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useRoute } from '#app'
+
+const route = useRoute()
+const title = computed(() => {
+  return route.meta.title || 'Overview'
+})
+</script>
+
 <template>
   <header class="topbar">
     <div class="topbar__left">
-      <h1 class="topbar__title">Overview</h1>
+      <h1 class="topbar__title">{{ title }}</h1>
     </div>
 
     <div class="topbar__right">
@@ -16,14 +26,30 @@
       <button class="topbar__icon-btn" aria-label="Settings">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
           <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.5" />
-          <path d="M10 2V4M10 16V18M18 10H16M4 10H2M15.5 4.5L14 6M6 14L4.5 15.5M15.5 15.5L14 14M6 6L4.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <path
+            d="M10 2V4M10 16V18M18 10H16M4 10H2M15.5 4.5L14 6M6 14L4.5 15.5M15.5 15.5L14 14M6 6L4.5 4.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
         </svg>
       </button>
 
       <button class="topbar__icon-btn" aria-label="Notifications">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <path d="M10 2C7.23858 2 5 4.23858 5 7V10L3 13H17L15 10V7C15 4.23858 12.7614 2 10 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-          <path d="M8 16C8 17.1046 8.89543 18 10 18C11.1046 18 12 17.1046 12 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          <path
+            d="M10 2C7.23858 2 5 4.23858 5 7V10L3 13H17L15 10V7C15 4.23858 12.7614 2 10 2Z"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M8 16C8 17.1046 8.89543 18 10 18C11.1046 18 12 17.1046 12 16"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
         </svg>
       </button>
 

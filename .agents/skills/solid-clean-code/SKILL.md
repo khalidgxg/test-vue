@@ -34,6 +34,7 @@ When activated, follow these steps:
 ### Step 1 — Analyze Against All 5 SOLID Principles
 
 Review the code against each principle below. For every violation found, provide:
+
 - **The principle violated**
 - **The exact code that violates it**
 - **Why it's a violation** (impact on maintainability, testability, scalability)
@@ -58,12 +59,14 @@ Output a structured report following the template in Section 4.
 A class that handles multiple concerns becomes fragile — changing one concern risks breaking the others. In Laravel, this is the most commonly violated principle.
 
 **How to detect violations:**
+
 - Controller methods longer than 10 lines of logic
 - Service classes that handle both business logic AND infrastructure (email, file storage)
 - Models that contain business rules, validation, AND formatting
 - Methods with "AND" in their description: "This method validates AND saves AND sends notification"
 
 **❌ VIOLATION — Controller doing everything:**
+
 ```php
 <?php
 
@@ -81,7 +84,7 @@ final class OrderController extends Controller
 
         // ❌ Business logic (should be in Service/Action)
         $product = Product::findOrFail($validated['product_id']);
-        
+
         if ($product->stock < $validated['quantity']) {
             return response()->json(['error' => 'Insufficient stock'], 422);
         }
@@ -108,6 +111,7 @@ final class OrderController extends Controller
 ```
 
 **✅ REFACTORED — Each class has ONE responsibility:**
+
 ```php
 <?php
 
@@ -197,6 +201,7 @@ final class SendOrderConfirmationListener implements ShouldQueue
 ```
 
 **SRP Rule of Thumb:**
+
 ```
 Controller     → HTTP concerns only (max 5-7 lines of logic)
 FormRequest    → Validation + Authorization only
@@ -217,11 +222,13 @@ Observer       → Persistence-related hooks only (auto-setting fields)
 You should be able to add new behavior WITHOUT changing existing, tested code. This is achieved through **interfaces**, **polymorphism**, and **strategy patterns**.
 
 **How to detect violations:**
+
 - Long `if/else` or `switch` chains that grow when a new type/status is added
 - Methods that check `instanceof` to decide behavior
 - Adding a new payment method/notification channel requires editing an existing class
 
 **❌ VIOLATION — Must modify existing code to add new payment method:**
+
 ```php
 <?php
 
@@ -245,6 +252,7 @@ final class PaymentService
 ```
 
 **✅ REFACTORED — Add new payment methods without touching existing code:**
+
 ```php
 <?php
 
@@ -315,6 +323,7 @@ $this->app->bind(PaymentGatewayInterface::class, function () {
 ```
 
 **OCP Checklist:**
+
 ```
 ✅ New behavior = New class implementing existing interface
 ✅ Existing classes remain UNTOUCHED
@@ -332,12 +341,14 @@ $this->app->bind(PaymentGatewayInterface::class, function () {
 If class B extends class A, you should be able to replace A with B anywhere and the program must still work correctly — no surprises, no broken contracts.
 
 **How to detect violations:**
+
 - A subclass throws an exception the parent doesn't
 - A subclass changes the return type or behavior unexpectedly
 - A method checks `instanceof` to handle different subclass behaviors
 - An overridden method silently does nothing (empty implementation)
 
 **❌ VIOLATION — Subclass breaks the contract:**
+
 ```php
 <?php
 
@@ -375,6 +386,7 @@ final class SmsChannel implements NotificationChannelInterface
 ```
 
 **✅ REFACTORED — Both implementations honor the contract:**
+
 ```php
 <?php
 
@@ -394,6 +406,7 @@ final class SmsChannel implements NotificationChannelInterface
 ```
 
 **LSP Rules:**
+
 ```
 ✅ Same input types → Same output types
 ✅ Same method signature → Same behavioral contract
@@ -413,11 +426,13 @@ final class SmsChannel implements NotificationChannelInterface
 Large, monolithic interfaces force classes to implement methods they don't need — leading to empty methods, `throw new \BadMethodCallException()`, or methods that return null silently.
 
 **How to detect violations:**
+
 - An interface with 5+ methods where most implementors only need 2-3
 - Classes implementing interface methods with empty bodies or `throw`
 - A "UserInterface" that has methods for both customer AND admin operations
 
 **❌ VIOLATION — One huge interface forces unnecessary implementations:**
+
 ```php
 <?php
 
@@ -441,7 +456,7 @@ final class DocumentStorage implements FileStorageInterface
     public function upload(UploadedFile $file): string { /* works */ }
     public function download(string $path): StreamedResponse { /* works */ }
     public function delete(string $path): bool { /* works */ }
-    
+
     // ❌ FORCED to implement — documents don't have thumbnails!
     public function generateThumbnail(string $path, int $width, int $height): string
     {
@@ -460,6 +475,7 @@ final class DocumentStorage implements FileStorageInterface
 ```
 
 **✅ REFACTORED — Small, focused interfaces:**
+
 ```php
 <?php
 
@@ -520,6 +536,7 @@ final class VideoStorage implements FileStorageInterface, HasThumbnailInterface,
 ```
 
 **ISP Rules:**
+
 ```
 ✅ 1-4 methods per interface (focused, cohesive)
 ✅ Every method in the interface is needed by EVERY implementor
@@ -538,12 +555,14 @@ final class VideoStorage implements FileStorageInterface, HasThumbnailInterface,
 Your business logic (high-level) should never directly depend on specific infrastructure (low-level). Both should depend on interfaces.
 
 **How to detect violations:**
+
 - Constructor injects concrete classes instead of interfaces
 - Using `new ConcreteClass()` inside business logic
 - Changing the email provider requires editing business logic code
 - Business logic directly calls `Http::`, `Mail::`, or filesystem operations
 
 **❌ VIOLATION — Business logic tightly coupled to infrastructure:**
+
 ```php
 <?php
 
@@ -574,6 +593,7 @@ final class UserRegistrationService
 ```
 
 **✅ REFACTORED — Depends on abstractions, not concretions:**
+
 ```php
 <?php
 
@@ -625,6 +645,7 @@ $this->app->bind(NewsletterServiceInterface::class, MailchimpNewsletterService::
 ```
 
 **DIP Benefits:**
+
 ```
 ✅ Swap Stripe → PayPal = change ONE line in ServiceProvider
 ✅ Unit tests = inject mock implementation
@@ -698,20 +719,21 @@ User::where('status', 'active')->paginate(20);
 
 When reviewing code, flag these smells:
 
-| Code Smell | Indicator | Fix |
-|---|---|---|
-| **Long Method** | Method > 15 lines of logic | Extract into smaller methods |
-| **Long Parameter List** | Method with > 3 parameters | Use DTO or FormRequest |
-| **God Class** | Class with > 300 lines or > 10 methods | Split by responsibility |
-| **Feature Envy** | Method uses more data from another class than its own | Move method to that class |
-| **Primitive Obsession** | Using strings/ints for status, types, currencies | Use Backed Enums |
-| **Dead Code** | Unused methods, variables, imports | Remove them |
-| **Magic Numbers** | Hardcoded `0.15`, `60`, `1000` | Use constants or config |
-| **Deep Nesting** | 3+ levels of if/else/for | Use early returns, guard clauses |
-| **Boolean Parameters** | `function process($order, true, false)` | Use named arguments or split into 2 methods |
-| **Comments Explaining What** | `// increment counter` before `$counter++` | Code should be self-explanatory |
+| Code Smell                   | Indicator                                             | Fix                                         |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------------------- |
+| **Long Method**              | Method > 15 lines of logic                            | Extract into smaller methods                |
+| **Long Parameter List**      | Method with > 3 parameters                            | Use DTO or FormRequest                      |
+| **God Class**                | Class with > 300 lines or > 10 methods                | Split by responsibility                     |
+| **Feature Envy**             | Method uses more data from another class than its own | Move method to that class                   |
+| **Primitive Obsession**      | Using strings/ints for status, types, currencies      | Use Backed Enums                            |
+| **Dead Code**                | Unused methods, variables, imports                    | Remove them                                 |
+| **Magic Numbers**            | Hardcoded `0.15`, `60`, `1000`                        | Use constants or config                     |
+| **Deep Nesting**             | 3+ levels of if/else/for                              | Use early returns, guard clauses            |
+| **Boolean Parameters**       | `function process($order, true, false)`               | Use named arguments or split into 2 methods |
+| **Comments Explaining What** | `// increment counter` before `$counter++`            | Code should be self-explanatory             |
 
 **Deep Nesting Fix — Guard Clauses:**
+
 ```php
 // ❌ BAD — Deep nesting
 public function processOrder(Order $order): void
@@ -750,15 +772,15 @@ public function processOrder(Order $order): void
 
 When reporting violations, classify them by severity:
 
-| Severity | Criteria | Action |
-|---|---|---|
-| 🔴 **Critical** | Violates DIP in core business logic (tightly coupled to infrastructure) | Must refactor before merge |
-| 🔴 **Critical** | God Class (> 500 lines, > 15 methods) | Must split immediately |
-| 🟡 **Warning** | Violates SRP (controller > 15 lines of logic) | Should refactor |
-| 🟡 **Warning** | Violates OCP (switch/if-else chains with 4+ branches) | Should use polymorphism |
-| 🟡 **Warning** | Violates ISP (interface with unused methods) | Should split interface |
-| 💡 **Suggestion** | Minor DRY violation (2 occurrences of same logic) | Consider extracting |
-| 💡 **Suggestion** | Could benefit from named arguments for clarity | Nice improvement |
+| Severity          | Criteria                                                                | Action                     |
+| ----------------- | ----------------------------------------------------------------------- | -------------------------- |
+| 🔴 **Critical**   | Violates DIP in core business logic (tightly coupled to infrastructure) | Must refactor before merge |
+| 🔴 **Critical**   | God Class (> 500 lines, > 15 methods)                                   | Must split immediately     |
+| 🟡 **Warning**    | Violates SRP (controller > 15 lines of logic)                           | Should refactor            |
+| 🟡 **Warning**    | Violates OCP (switch/if-else chains with 4+ branches)                   | Should use polymorphism    |
+| 🟡 **Warning**    | Violates ISP (interface with unused methods)                            | Should split interface     |
+| 💡 **Suggestion** | Minor DRY violation (2 occurrences of same logic)                       | Consider extracting        |
+| 💡 **Suggestion** | Could benefit from named arguments for clarity                          | Nice improvement           |
 
 ---
 
@@ -770,6 +792,7 @@ When generating a SOLID/Clean Code review, use this format:
 # 🏗️ SOLID & Clean Code Review Report
 
 ## 📋 Summary
+
 - **Files Reviewed**: [count]
 - **Overall SOLID Score**: [⭐ out of 5]
 - **Critical Violations**: [count]
@@ -778,6 +801,7 @@ When generating a SOLID/Clean Code review, use this format:
 ## 🔴 SOLID Violations Found
 
 ### [S/O/L/I/D] — [Principle Name]
+
 - **File**: `path/to/file.php:L42`
 - **Violation**: [What's wrong]
 - **Impact**: [Why it matters — maintainability, testability, scalability]
@@ -787,20 +811,22 @@ When generating a SOLID/Clean Code review, use this format:
 ## 🧹 Clean Code Issues
 
 ### [DRY/KISS/YAGNI/Smell]
+
 - **File**: `path/to/file.php:L15`
 - **Issue**: [Description]
 - **Fix**: [Recommendation]
 
 ## 📊 SOLID Scorecard
-| Principle | Score | Notes |
-|---|---|---|
-| S — Single Responsibility | ⭐⭐⭐⭐⭐ | |
-| O — Open/Closed | ⭐⭐⭐⭐⭐ | |
-| L — Liskov Substitution | ⭐⭐⭐⭐⭐ | |
-| I — Interface Segregation | ⭐⭐⭐⭐⭐ | |
-| D — Dependency Inversion | ⭐⭐⭐⭐⭐ | |
-| DRY | ⭐⭐⭐⭐⭐ | |
-| KISS | ⭐⭐⭐⭐⭐ | |
+
+| Principle                 | Score      | Notes |
+| ------------------------- | ---------- | ----- |
+| S — Single Responsibility | ⭐⭐⭐⭐⭐ |       |
+| O — Open/Closed           | ⭐⭐⭐⭐⭐ |       |
+| L — Liskov Substitution   | ⭐⭐⭐⭐⭐ |       |
+| I — Interface Segregation | ⭐⭐⭐⭐⭐ |       |
+| D — Dependency Inversion  | ⭐⭐⭐⭐⭐ |       |
+| DRY                       | ⭐⭐⭐⭐⭐ |       |
+| KISS                      | ⭐⭐⭐⭐⭐ |       |
 ```
 
 ---
@@ -808,6 +834,7 @@ When generating a SOLID/Clean Code review, use this format:
 ## Best Practices & Rules
 
 ### Mandatory Rules
+
 - **MUST** analyze ALL 5 SOLID principles for every review — never skip a principle.
 - **MUST** provide before/after code examples for every violation found.
 - **MUST** classify violations by severity (🔴 Critical, 🟡 Warning, 💡 Suggestion).
@@ -815,6 +842,7 @@ When generating a SOLID/Clean Code review, use this format:
 - **MUST** use the report template for structured output.
 
 ### Expert Judgment Rules
+
 - **MUST NOT** force abstraction where simplicity is better — YAGNI takes priority over DIP for simple CRUD.
 - **MUST NOT** recommend Repository pattern for basic Eloquent operations — only for complex multi-source data access.
 - **MUST NOT** recommend interfaces for classes with only ONE implementation — interfaces are for polymorphism, not decoration.
@@ -822,12 +850,14 @@ When generating a SOLID/Clean Code review, use this format:
 - **MUST** consider the project's scale — a startup MVP has different SOLID needs than an enterprise app.
 
 ### Practical Rules
+
 - **MUST** explain WHY each principle matters in the specific context — not just theory.
 - **MUST** show the concrete impact: "This will break when you add a new payment method" is better than "This violates OCP."
 - **MUST NOT** refactor code unless the user explicitly asks — this skill only REVIEWS and REPORTS.
 - **MUST** prioritize findings — not all violations are equally urgent.
 
 ### When NOT to Apply SOLID Strictly
+
 - **Simple CRUD controllers**: Don't force a full Action/Service pattern for a 5-line store method.
 - **Single-use classes**: Don't create an interface for a class that will only ever have one implementation.
 - **Prototypes/MVPs**: Focus on shipping first — refactor when patterns emerge.

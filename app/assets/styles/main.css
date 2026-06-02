@@ -2,37 +2,37 @@
 
 :root {
   /* BankDash color palette */
-  --color-primary: #396AFF;
-  --color-primary-light: #5B8DEF;
-  --color-primary-dark: #2D52CC;
+  --color-primary: #396aff;
+  --color-primary-light: #5b8def;
+  --color-primary-dark: #2d52cc;
   --color-secondary: #06b6d4;
-  --color-accent: #FCAA0B;
-  --color-success: #41D4A8;
-  --color-danger: #FF4B4A;
-  --color-warning: #FCAA0B;
+  --color-accent: #fcaa0b;
+  --color-success: #41d4a8;
+  --color-danger: #ff4b4a;
+  --color-warning: #fcaa0b;
 
   /* Card gradient colors */
-  --card-dark-start: #4C49ED;
-  --card-dark-mid: #0A06F4;
-  --card-dark-end: #2D2B8A;
+  --card-dark-start: #4c49ed;
+  --card-dark-mid: #0a06f4;
+  --card-dark-end: #2d2b8a;
 
   /* Chart colors */
-  --color-chart-deposit: #396AFF;
-  --color-chart-withdraw: #16DBCC;
-  --color-expense-entertainment: #343C6A;
-  --color-expense-bill: #FC7900;
-  --color-expense-investment: #FA00FF;
-  --color-expense-others: #396AFF;
+  --color-chart-deposit: #396aff;
+  --color-chart-withdraw: #16dbcc;
+  --color-expense-entertainment: #343c6a;
+  --color-expense-bill: #fc7900;
+  --color-expense-investment: #fa00ff;
+  --color-expense-others: #396aff;
 
   /* Surfaces */
-  --color-background: #F5F7FA;
+  --color-background: #f5f7fa;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
-  --color-text: #343C6A;
-  --color-text-muted: #B1B1B1;
-  --color-text-light: #8BA3CB;
-  --color-border: #E6EFF5;
-  --color-border-light: #F5F7FA;
+  --color-text: #343c6a;
+  --color-text-muted: #b1b1b1;
+  --color-text-light: #8ba3cb;
+  --color-border: #e6eff5;
+  --color-border-light: #f5f7fa;
 
   /* Typography */
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -92,4 +92,11 @@ html {
 
 body {
   min-height: 100dvh;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
 }

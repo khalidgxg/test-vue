@@ -8,7 +8,10 @@
       <div
         v-for="contact in contacts"
         :key="contact.id"
-        :class="['quick-transfer__contact', { 'quick-transfer__contact--selected': contact.selected }]"
+        :class="[
+          'quick-transfer__contact',
+          { 'quick-transfer__contact--selected': contact.selected },
+        ]"
       >
         <img :src="contact.avatar" :alt="contact.name" class="quick-transfer__avatar" />
         <span class="quick-transfer__name">{{ contact.name }}</span>
@@ -17,7 +20,13 @@
 
       <button class="quick-transfer__next-btn" aria-label="Next contacts">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M7 4L12 9L7 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path
+            d="M7 4L12 9L7 14"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </button>
     </div>
@@ -26,12 +35,7 @@
       <div class="quick-transfer__input-group">
         <span class="quick-transfer__label">Write Amount</span>
         <div class="quick-transfer__input-wrapper">
-          <input
-            v-model="amount"
-            type="text"
-            placeholder="525.50"
-            class="quick-transfer__input"
-          />
+          <input v-model="amount" type="text" placeholder="525.50" class="quick-transfer__input" />
           <button class="quick-transfer__send-btn" @click="handleSend">
             Send
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -54,7 +58,13 @@ interface Contact {
 }
 
 const contacts: Contact[] = [
-  { id: 1, name: 'Livia Bator', role: 'CEO', avatar: 'https://i.pravatar.cc/80?img=5', selected: true },
+  {
+    id: 1,
+    name: 'Livia Bator',
+    role: 'CEO',
+    avatar: 'https://i.pravatar.cc/80?img=5',
+    selected: true,
+  },
   { id: 2, name: 'Randy Press', role: 'Director', avatar: 'https://i.pravatar.cc/80?img=8' },
   { id: 3, name: 'Workman', role: 'Designer', avatar: 'https://i.pravatar.cc/80?img=11' },
 ]

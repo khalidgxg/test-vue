@@ -1,6 +1,6 @@
 ---
 name: master-skill-creator
-description: "Generates professional Agent Skill files (SKILL.md) for Google Antigravity IDE. Engineers skill structure, YAML frontmatter, markdown sections, best practices, and validation rules. Creates focused, single-purpose skills following official Google documentation standards."
+description: 'Generates professional Agent Skill files (SKILL.md) for Google Antigravity IDE. Engineers skill structure, YAML frontmatter, markdown sections, best practices, and validation rules. Creates focused, single-purpose skills following official Google documentation standards.'
 ---
 
 # Master Skill Creator
@@ -42,11 +42,12 @@ Create the frontmatter block with these mandatory fields:
 ```yaml
 ---
 name: <kebab-case-name>
-description: "<Third-person description with strong discovery keywords. Must start with a verb. Max 160 characters.>"
+description: '<Third-person description with strong discovery keywords. Must start with a verb. Max 160 characters.>'
 ---
 ```
 
 **Rules:**
+
 - `name`: lowercase English letters and hyphens only. No spaces, underscores, or special characters.
 - `description`: Must be in **third-person** voice (e.g., "Generates…", "Validates…", "Automates…"). Must contain **keyword-rich** language so the Agent can auto-discover and invoke the skill from user context.
 
@@ -124,22 +125,26 @@ If any check fails, fix it automatically before presenting the final output.
 ## Best Practices & Conventions
 
 ### File Structure Rules
+
 - **MUST** place every skill at `.agents/skills/<skill-name>/SKILL.md` — no exceptions.
 - **MUST** use exactly the section headings defined above. Do not rename, reorder, or skip mandatory sections.
 - **MUST NOT** create a skill that tries to do everything. One skill = one job.
 
 ### Naming Rules
+
 - Skill `name` field: **MUST** be `kebab-case` using only lowercase English letters and hyphens.
 - Skill `name` field: **MUST NOT** contain spaces, underscores, uppercase letters, numbers, or special characters.
 - File name: **MUST** always be `SKILL.md` (uppercase).
 
 ### Description Rules
+
 - **MUST** be written in third-person voice (starts with a verb like "Generates", "Validates", "Creates").
 - **MUST** contain strong, discoverable keywords relevant to the skill's domain.
 - **MUST NOT** exceed 160 characters.
 - **MUST NOT** use first-person ("I generate…") or second-person ("You can use…").
 
 ### Content Quality Rules
+
 - **MUST** write all instructions as direct, actionable commands.
 - **MUST NOT** use vague terms like "consider", "maybe", "try to", "you might want to".
 - **MUST** include code examples for any step that involves generating code or configuration.
@@ -147,10 +152,12 @@ If any check fails, fix it automatically before presenting the final output.
 - **MUST** include a validation checklist in complex skills.
 
 ### Language Rules
+
 - Skill file content **MUST** be written in **English**.
 - Trigger phrases in "When to use this skill" **MAY** include Arabic equivalents for bilingual discovery.
 
 ### Security & Quality
+
 - **MUST NOT** hardcode secrets, API keys, or credentials in any skill file.
 - **MUST NOT** include destructive commands (like `rm -rf`, `DROP DATABASE`) without explicit safety warnings.
 - **MUST** include error handling guidance when the skill involves file operations or external API calls.

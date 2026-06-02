@@ -2,7 +2,8 @@
   <div class="my-cards">
     <div class="my-cards__header">
       <h2 class="my-cards__title">My Cards</h2>
-      <a href="#" class="my-cards__link">See All</a>
+      <NuxtLink v-if="showAddCard" to="/credit-cards" class="my-cards__link">+ Add Card</NuxtLink>
+      <NuxtLink v-else to="/transactions" class="my-cards__link">See All</NuxtLink>
     </div>
 
     <div class="my-cards__grid">
@@ -48,8 +49,18 @@
           <span class="card__number">{{ card.number }}</span>
           <div class="card__brand">
             <svg width="44" height="30" viewBox="0 0 44 30" fill="none">
-              <circle cx="15" cy="15" r="14" :fill="card.theme === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(150,150,150,0.5)'" />
-              <circle cx="29" cy="15" r="14" :fill="card.theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(150,150,150,0.3)'" />
+              <circle
+                cx="15"
+                cy="15"
+                r="14"
+                :fill="card.theme === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(150,150,150,0.5)'"
+              />
+              <circle
+                cx="29"
+                cy="15"
+                r="14"
+                :fill="card.theme === 'dark' ? 'rgba(255,255,255,0.3)' : 'rgba(150,150,150,0.3)'"
+              />
             </svg>
           </div>
         </div>
@@ -59,6 +70,13 @@
 </template>
 
 <script setup lang="ts">
+defineProps({
+  showAddCard: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 interface Card {
   id: number
   balance: number
@@ -136,7 +154,7 @@ function formatNumber(num: number): string {
 }
 
 .card--dark {
-  background: linear-gradient(107deg, #4C49ED 0%, #0A06F4 100%);
+  background: linear-gradient(107deg, #4c49ed 0%, #0a06f4 100%);
   color: white;
 }
 

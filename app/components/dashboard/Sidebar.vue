@@ -4,8 +4,18 @@
       <div class="sidebar__logo">
         <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
           <rect width="36" height="36" rx="8" fill="#396AFF" />
-          <path d="M10 18C10 18 13 13 18 13C23 13 26 18 26 18" stroke="white" stroke-width="2.5" stroke-linecap="round" />
-          <path d="M10 22C10 22 13 17 18 17C23 17 26 22 26 22" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+          <path
+            d="M10 18C10 18 13 13 18 13C23 13 26 18 26 18"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+          <path
+            d="M10 22C10 22 13 17 18 17C23 17 26 22 26 22"
+            stroke="white"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
         </svg>
         <span class="sidebar__brand">BankDash.</span>
       </div>
@@ -16,7 +26,8 @@
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
-        :class="['sidebar__link', { 'sidebar__link--active': item.to === '/' }]"
+        class="sidebar__link"
+        exact-active-class="sidebar__link--active"
       >
         <span class="sidebar__icon" v-html="item.icon"></span>
         <span>{{ item.label }}</span>

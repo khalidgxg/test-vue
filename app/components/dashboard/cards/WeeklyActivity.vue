@@ -17,7 +17,14 @@
     <div class="weekly-activity__chart">
       <svg :viewBox="`0 0 ${svgWidth} ${svgHeight}`" class="weekly-activity__svg">
         <!-- Y Axis Labels -->
-        <text v-for="label in yLabels" :key="label.value" x="25" :y="label.y + 4" class="weekly-activity__axis-label" text-anchor="end">
+        <text
+          v-for="label in yLabels"
+          :key="label.value"
+          x="25"
+          :y="label.y + 4"
+          class="weekly-activity__axis-label"
+          text-anchor="end"
+        >
           {{ label.value }}
         </text>
 
@@ -154,11 +161,11 @@ const chartData: ChartDataItem[] = rawData.map((item) => ({
 }
 
 .weekly-activity__legend-dot--deposit {
-  background-color: #16DBCC;
+  background-color: #16dbcc;
 }
 
 .weekly-activity__legend-dot--withdraw {
-  background-color: #FE5C73;
+  background-color: #fe5c73;
 }
 
 .weekly-activity__chart {

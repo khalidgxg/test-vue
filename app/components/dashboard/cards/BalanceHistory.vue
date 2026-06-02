@@ -14,7 +14,14 @@
         </defs>
 
         <!-- Y Axis Labels -->
-        <text v-for="label in yLabels" :key="label.value" x="25" :y="label.y + 4" class="balance-history__axis-label" text-anchor="end">
+        <text
+          v-for="label in yLabels"
+          :key="label.value"
+          x="25"
+          :y="label.y + 4"
+          class="balance-history__axis-label"
+          text-anchor="end"
+        >
           {{ label.value }}
         </text>
 
@@ -35,7 +42,14 @@
         <path :d="areaPath" fill="url(#balanceGradient)" />
 
         <!-- Line -->
-        <path :d="linePath" fill="none" stroke="#1814F3" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+        <path
+          :d="linePath"
+          fill="none"
+          stroke="#1814F3"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
 
         <!-- Month labels -->
         <text

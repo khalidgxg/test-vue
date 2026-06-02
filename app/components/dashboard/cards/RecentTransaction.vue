@@ -6,7 +6,9 @@
 
     <div class="recent-transaction__list">
       <div v-for="transaction in transactions" :key="transaction.id" class="transaction-item">
-        <div :class="['transaction-item__icon', `transaction-item__icon--${transaction.iconColor}`]">
+        <div
+          :class="['transaction-item__icon', `transaction-item__icon--${transaction.iconColor}`]"
+        >
           <span class="transaction-item__icon-inner" v-html="transaction.icon"></span>
         </div>
 
@@ -15,7 +17,9 @@
           <span class="transaction-item__date">{{ transaction.date }}</span>
         </div>
 
-        <span :class="['transaction-item__amount', `transaction-item__amount--${transaction.type}`]">
+        <span
+          :class="['transaction-item__amount', `transaction-item__amount--${transaction.type}`]"
+        >
           {{ transaction.type === 'expense' ? '-' : '+' }}${{ formatNumber(transaction.amount) }}
         </span>
       </div>
@@ -113,18 +117,18 @@ function formatNumber(num: number): string {
 }
 
 .transaction-item__icon--yellow {
-  background-color: #FFF5D9;
-  color: #FFBB38;
+  background-color: #fff5d9;
+  color: #ffbb38;
 }
 
 .transaction-item__icon--blue {
-  background-color: #E7EDFF;
-  color: #396AFF;
+  background-color: #e7edff;
+  color: #396aff;
 }
 
 .transaction-item__icon--cyan {
-  background-color: #DCFAF8;
-  color: #16DBCC;
+  background-color: #dcfaf8;
+  color: #16dbcc;
 }
 
 .transaction-item__icon-inner {

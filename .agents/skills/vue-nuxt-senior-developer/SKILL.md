@@ -1,6 +1,6 @@
 ---
 name: vue-nuxt-senior-developer
-description: "Writes production-grade Vue 3, Nuxt 4, and TypeScript code as a senior developer with 15 years of experience. Enforces Composition API patterns, composable architecture, Pinia stores, Nitro server routes, and performance-first coding standards."
+description: 'Writes production-grade Vue 3, Nuxt 4, and TypeScript code as a senior developer with 15 years of experience. Enforces Composition API patterns, composable architecture, Pinia stores, Nitro server routes, and performance-first coding standards.'
 ---
 
 # Vue / Nuxt Senior Developer
@@ -40,26 +40,26 @@ Before writing any code, detect the project's environment:
 5. **MUST NOT** hardcode or assume a specific Vue/Nuxt version.
 6. Adapt code features based on detected versions:
 
-   | Vue Version | Features to Use |
-   |-------------|-----------------|
-   | **3.5+** | `useTemplateRef()`, `useId()`, reactive props destructure, `onWatcherCleanup()` |
-   | **3.4+** | `defineModel()`, short emit syntax, `v-bind` same-name shorthand, generic `defineProps` |
-   | **3.3+** | `defineOptions()`, generic components, `toValue()`, `defineSlots()` |
-   | **3.2+** | `<script setup>`, `defineProps`, `defineEmits`, `v-memo` |
+   | Vue Version | Features to Use                                                                         |
+   | ----------- | --------------------------------------------------------------------------------------- |
+   | **3.5+**    | `useTemplateRef()`, `useId()`, reactive props destructure, `onWatcherCleanup()`         |
+   | **3.4+**    | `defineModel()`, short emit syntax, `v-bind` same-name shorthand, generic `defineProps` |
+   | **3.3+**    | `defineOptions()`, generic components, `toValue()`, `defineSlots()`                     |
+   | **3.2+**    | `<script setup>`, `defineProps`, `defineEmits`, `v-memo`                                |
 
-   | Nuxt Version | Patterns to Follow |
-   |--------------|-------------------|
-   | **4+** | `app/` directory, shared folder, TypeScript project isolation, singleton `useFetch` |
-   | **3.10+** | `usePreviewMode()`, `callOnce()`, improved `useCookie()` |
-   | **3.8+** | Built-in `useRequestURL()`, improved Nitro typing |
-   | **3.0+** | `useFetch`, `useAsyncData`, `useState`, auto-imports, Nitro server engine |
+   | Nuxt Version | Patterns to Follow                                                                  |
+   | ------------ | ----------------------------------------------------------------------------------- |
+   | **4+**       | `app/` directory, shared folder, TypeScript project isolation, singleton `useFetch` |
+   | **3.10+**    | `usePreviewMode()`, `callOnce()`, improved `useCookie()`                            |
+   | **3.8+**     | Built-in `useRequestURL()`, improved Nitro typing                                   |
+   | **3.0+**     | `useFetch`, `useAsyncData`, `useState`, auto-imports, Nitro server engine           |
 
-   | TypeScript Version | Features to Use |
-   |-------------------|-----------------|
-   | **5.5+** | Inferred type predicates, isolated modules, config extends |
-   | **5.4+** | `NoInfer<T>` utility type, improved narrowing |
-   | **5.3+** | `satisfies` improvements, `using` declarations |
-   | **5.0+** | `const` type parameters, decorators, `satisfies` operator |
+   | TypeScript Version | Features to Use                                            |
+   | ------------------ | ---------------------------------------------------------- |
+   | **5.5+**           | Inferred type predicates, isolated modules, config extends |
+   | **5.4+**           | `NoInfer<T>` utility type, improved narrowing              |
+   | **5.3+**           | `satisfies` improvements, `using` declarations             |
+   | **5.0+**           | `const` type parameters, decorators, `satisfies` operator  |
 
 ### Step 1 — Search Official Documentation When Needed
 
@@ -151,11 +151,7 @@ Components are the **view layer** only — they render UI and delegate logic to 
     <h1>{{ user.name }}</h1>
     <p class="user-profile__email">{{ user.email }}</p>
 
-    <UiButton
-      variant="primary"
-      :disabled="isSubmitting"
-      @click="handleUpdate"
-    >
+    <UiButton variant="primary" :disabled="isSubmitting" @click="handleUpdate">
       {{ isSubmitting ? 'Saving...' : 'Update Profile' }}
     </UiButton>
 
@@ -212,6 +208,7 @@ async function handleUpdate() {
 ```
 
 **Component Rules:**
+
 ```
 ✅ <script setup lang="ts"> — always
 ✅ defineProps<T>() — TypeScript generics, no runtime declaration
@@ -239,10 +236,7 @@ export function useUserActions() {
   const isSubmitting = ref(false)
   const error = ref<string | null>(null)
 
-  async function updateUser(
-    userId: number,
-    payload: UpdateUserPayload,
-  ): Promise<User | null> {
+  async function updateUser(userId: number, payload: UpdateUserPayload): Promise<User | null> {
     isSubmitting.value = true
     error.value = null
 
@@ -253,8 +247,7 @@ export function useUserActions() {
       })
       return user
     } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'An unexpected error occurred'
+      error.value = err instanceof Error ? err.message : 'An unexpected error occurred'
       return null
     } finally {
       isSubmitting.value = false
@@ -266,8 +259,7 @@ export function useUserActions() {
       await $fetch(`/api/users/${userId}`, { method: 'DELETE' })
       return true
     } catch (err) {
-      error.value =
-        err instanceof Error ? err.message : 'Failed to delete user'
+      error.value = err instanceof Error ? err.message : 'Failed to delete user'
       return false
     }
   }
@@ -284,6 +276,7 @@ export function useUserActions() {
 ```
 
 **Composable Rules:**
+
 ```
 ✅ Prefix with "use" — always (useAuth, usePagination, useCart)
 ✅ Return a named object — never return an array for complex composables
@@ -322,13 +315,10 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credentials: LoginCredentials): Promise<boolean> {
     isLoading.value = true
     try {
-      const response = await $fetch<{ user: User; token: string }>(
-        '/api/auth/login',
-        {
-          method: 'POST',
-          body: credentials,
-        },
-      )
+      const response = await $fetch<{ user: User; token: string }>('/api/auth/login', {
+        method: 'POST',
+        body: credentials,
+      })
       user.value = response.user
       token.value = response.token
       return true
@@ -374,6 +364,7 @@ export const useAuthStore = defineStore('auth', () => {
 ```
 
 **Store Rules:**
+
 ```
 ✅ Composition API style (setup stores) — not options style
 ✅ Typed state with TypeScript interfaces
@@ -399,17 +390,11 @@ Pages handle **routing and data orchestration**:
     </template>
 
     <template v-else-if="error">
-      <UiErrorState
-        :message="error.message"
-        @retry="refresh"
-      />
+      <UiErrorState :message="error.message" @retry="refresh" />
     </template>
 
     <template v-else-if="user">
-      <UserProfile
-        :user="user"
-        @updated="refresh"
-      />
+      <UserProfile :user="user" @updated="refresh" />
     </template>
   </div>
 </template>
@@ -444,6 +429,7 @@ const {
 ```
 
 **Page Rules:**
+
 ```
 ✅ useFetch() / useAsyncData() for data — runs on server AND client
 ✅ definePageMeta() for middleware, layout, and route metadata
@@ -524,6 +510,7 @@ export default defineEventHandler(async (event) => {
 ```
 
 **Server Route Rules:**
+
 ```
 ✅ defineEventHandler() — always
 ✅ createError() for HTTP errors — with statusCode and statusMessage
@@ -612,6 +599,7 @@ export interface HealthCheck {
 ```
 
 **TypeScript Rules:**
+
 ```
 ✅ strict: true in tsconfig — always
 ✅ interfaces for object shapes (extensible)
@@ -673,6 +661,7 @@ export interface HealthCheck {
 ```
 
 **CSS Rules:**
+
 ```
 ✅ scoped styles — always (prevents leakage)
 ✅ CSS custom properties (variables) for theming and consistency
@@ -690,6 +679,7 @@ export interface HealthCheck {
 ## Best Practices & Conventions
 
 ### Mandatory Rules
+
 - **MUST** detect Vue, Nuxt, and TypeScript versions from `package.json` before writing any code.
 - **MUST** use `<script setup lang="ts">` for all Vue components.
 - **MUST** type all props with `defineProps<T>()` and emits with `defineEmits<T>()`.
@@ -704,6 +694,7 @@ export interface HealthCheck {
 - **MUST** search official documentation when uncertain about an API.
 
 ### Safety Rules
+
 - **MUST NOT** use the Options API in new code.
 - **MUST NOT** use Vuex, mixins, or `this.$` in new code.
 - **MUST NOT** use `any` type — use `unknown`, generics, or proper typing.
@@ -715,6 +706,7 @@ export interface HealthCheck {
 - **MUST NOT** guess API signatures — always verify in documentation.
 
 ### Naming Conventions
+
 ```
 Components:    PascalCase.vue          (UserProfile.vue, UiButton.vue)
 Composables:   useCamelCase.ts         (useAuth.ts, usePagination.ts)
