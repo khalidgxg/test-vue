@@ -31,35 +31,30 @@ useHead({
 .page-dashboard {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .page-dashboard__top {
   display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 1.5rem;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1.25rem;
 }
 
 .page-dashboard__middle {
   display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 1.5rem;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1.25rem;
 }
 
 .page-dashboard__bottom {
   display: grid;
-  grid-template-columns: 445px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 1.25rem;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
   .page-dashboard__top,
-  .page-dashboard__middle {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
+  .page-dashboard__middle,
   .page-dashboard__bottom {
     grid-template-columns: 1fr;
   }

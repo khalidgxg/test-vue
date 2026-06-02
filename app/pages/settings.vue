@@ -1,0 +1,436 @@
+<template>
+  <div class="settings-page">
+    <!-- Profile Section -->
+    <div class="settings-page__grid">
+      <!-- Left: Edit Profile Form -->
+      <section class="settings-card">
+        <h2 class="settings-card__title">Edit Profile</h2>
+
+        <!-- Avatar -->
+        <div class="settings-avatar">
+          <img src="https://i.pravatar.cc/120?img=47" alt="Profile photo" class="settings-avatar__img" />
+          <button class="settings-avatar__edit" aria-label="Change profile photo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Form -->
+        <form class="settings-form" @submit.prevent="handleSave">
+          <div class="settings-form__row">
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="first-name">Your Name</label>
+              <input id="first-name" v-model="form.name" type="text" placeholder="Charlene Reed" class="settings-form__input" />
+            </div>
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="user-name">User Name</label>
+              <input id="user-name" v-model="form.username" type="text" placeholder="Charlene Reed" class="settings-form__input" />
+            </div>
+          </div>
+          <div class="settings-form__row">
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="email">Email</label>
+              <input id="email" v-model="form.email" type="email" placeholder="charlenereed@gmail.com" class="settings-form__input" />
+            </div>
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="password">Password</label>
+              <input id="password" v-model="form.password" type="password" placeholder="**********" class="settings-form__input" />
+            </div>
+          </div>
+          <div class="settings-form__row">
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="dob">Date of Birth</label>
+              <input id="dob" v-model="form.dob" type="text" placeholder="25 January 1990" class="settings-form__input" />
+            </div>
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="present-address">Present Address</label>
+              <input id="present-address" v-model="form.presentAddress" type="text" placeholder="San Jose, California, USA" class="settings-form__input" />
+            </div>
+          </div>
+          <div class="settings-form__row">
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="perm-address">Permanent Address</label>
+              <input id="perm-address" v-model="form.permanentAddress" type="text" placeholder="San Jose, California, USA" class="settings-form__input" />
+            </div>
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="city">City</label>
+              <input id="city" v-model="form.city" type="text" placeholder="San Jose" class="settings-form__input" />
+            </div>
+          </div>
+          <div class="settings-form__row">
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="postal">Postal Code</label>
+              <input id="postal" v-model="form.postal" type="text" placeholder="45962" class="settings-form__input" />
+            </div>
+            <div class="settings-form__group">
+              <label class="settings-form__label" for="country">Country</label>
+              <input id="country" v-model="form.country" type="text" placeholder="USA" class="settings-form__input" />
+            </div>
+          </div>
+          <div class="settings-form__actions">
+            <button type="submit" class="settings-form__submit">Save</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right: Tabs (Preference, Security, etc.) -->
+      <section class="settings-card settings-card--preferences">
+        <div class="settings-tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab"
+            :class="['settings-tab', { 'settings-tab--active': activeTab === tab }]"
+            @click="activeTab = tab"
+          >{{ tab }}</button>
+        </div>
+
+        <div class="settings-prefs">
+          <div class="pref-item">
+            <div class="pref-item__info">
+              <span class="pref-item__title">Two-factor Authentication</span>
+              <span class="pref-item__subtitle">Enable extra security for your account</span>
+            </div>
+            <label class="toggle">
+              <input v-model="prefs.twoFactor" type="checkbox" />
+              <span class="toggle__track"></span>
+            </label>
+          </div>
+          <div class="pref-item">
+            <div class="pref-item__info">
+              <span class="pref-item__title">Newsletter & Updates</span>
+              <span class="pref-item__subtitle">Receive updates and newsletters via email</span>
+            </div>
+            <label class="toggle">
+              <input v-model="prefs.newsletter" type="checkbox" />
+              <span class="toggle__track"></span>
+            </label>
+          </div>
+          <div class="pref-item">
+            <div class="pref-item__info">
+              <span class="pref-item__title">Push Notifications</span>
+              <span class="pref-item__subtitle">Get push notifications on your device</span>
+            </div>
+            <label class="toggle">
+              <input v-model="prefs.pushNotif" type="checkbox" />
+              <span class="toggle__track"></span>
+            </label>
+          </div>
+          <div class="pref-item">
+            <div class="pref-item__info">
+              <span class="pref-item__title">SMS Notifications</span>
+              <span class="pref-item__subtitle">Get important alerts via text message</span>
+            </div>
+            <label class="toggle">
+              <input v-model="prefs.smsNotif" type="checkbox" />
+              <span class="toggle__track"></span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+
+definePageMeta({
+  layout: 'dashboard',
+  title: 'Setting',
+})
+
+useHead({ title: 'Settings - BankDash' })
+
+const tabs = ['Edit Profile', 'Preference', 'Security']
+const activeTab = ref('Edit Profile')
+
+const form = ref({
+  name: 'Charlene Reed',
+  username: 'Charlene Reed',
+  email: 'charlenereed@gmail.com',
+  password: '',
+  dob: '25 January 1990',
+  presentAddress: 'San Jose, California, USA',
+  permanentAddress: 'San Jose, California, USA',
+  city: 'San Jose',
+  postal: '45962',
+  country: 'USA',
+})
+
+const prefs = ref({
+  twoFactor: true,
+  newsletter: false,
+  pushNotif: true,
+  smsNotif: false,
+})
+
+function handleSave(): void {
+  console.log('Saving profile:', form.value)
+}
+</script>
+
+<style scoped>
+.settings-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ── Tabs at top ──────────────────────────────── */
+.settings-page__tabs {
+  display: flex;
+  gap: 2rem;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Main grid ────────────────────────────────── */
+.settings-page__grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.settings-card {
+  background-color: var(--color-surface);
+  border-radius: var(--radius-2xl);
+  padding: 2rem;
+}
+
+.settings-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 2rem;
+}
+
+/* ── Avatar ──────────────────────────────────── */
+.settings-avatar {
+  position: relative;
+  width: 90px;
+  margin: 0 auto 2rem;
+}
+
+.settings-avatar__img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.settings-avatar__edit {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.settings-avatar__edit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* ── Form ─────────────────────────────────────── */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.settings-form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-form__label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.settings-form__input {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.settings-form__input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.settings-form__input:focus {
+  border-color: var(--color-primary);
+}
+
+.settings-form__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-form__submit {
+  background-color: #1814f3;
+  color: white;
+  border: none;
+  padding: 0.875rem 3rem;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.settings-form__submit:hover {
+  background-color: var(--color-primary);
+}
+
+/* ── Preferences Panel ──────────────────────── */
+.settings-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 1.75rem;
+}
+
+.settings-tab {
+  background: none;
+  border: none;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+}
+
+.settings-tab--active {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.settings-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  border-radius: 2px 2px 0 0;
+}
+
+.settings-prefs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pref-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pref-item:last-child {
+  border-bottom: none;
+}
+
+.pref-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pref-item__title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pref-item__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-light);
+}
+
+/* Toggle Switch */
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle__track {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background-color: var(--color-border);
+  transition: background-color 0.2s ease;
+}
+
+.toggle__track::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: white;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.toggle input:checked + .toggle__track {
+  background-color: var(--color-primary);
+}
+
+.toggle input:checked + .toggle__track::after {
+  transform: translateX(20px);
+}
+
+@media (max-width: 1100px) {
+  .settings-page__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-form__row {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

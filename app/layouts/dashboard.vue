@@ -27,8 +27,8 @@
 
 .dashboard-layout__content {
   flex: 1;
-  padding: var(--spacing-xl);
-  padding-top: calc(var(--topbar-height) + var(--spacing-xl));
+  padding: 1.5rem 3rem;
+  padding-top: calc(var(--topbar-height) + 1.5rem);
 }
 
 @media (max-width: 1024px) {

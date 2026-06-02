@@ -293,13 +293,13 @@ function handleDownload(txId: string) {
 .transactions-page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .transactions-page__top {
   display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 1.5rem;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 1.25rem;
 }
 
 .transactions-page__bottom {
@@ -556,7 +556,7 @@ function handleDownload(txId: string) {
   transform: translateY(30px);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1100px) {
   .transactions-page__top {
     grid-template-columns: 1fr;
   }
