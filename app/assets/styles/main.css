@@ -1,0 +1,31 @@
+:root {
+  --color-primary: #00dc82;
+  --color-secondary: #1b1b1b;
+  --color-background: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-text: #1b1b1b;
+  --color-text-muted: #666666;
+  --color-border: #e2e2e2;
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100dvh;
+}
