@@ -1,0 +1,39 @@
+<template>
+  <div class="dashboard-layout">
+    <DashboardSidebar />
+    <div class="dashboard-layout__main">
+      <DashboardTopbar />
+      <main class="dashboard-layout__content">
+        <slot />
+      </main>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.dashboard-layout {
+  display: flex;
+  min-height: 100dvh;
+  background-color: var(--color-background);
+}
+
+.dashboard-layout__main {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.dashboard-layout__content {
+  flex: 1;
+  padding: var(--spacing-xl);
+  padding-top: calc(var(--topbar-height) + var(--spacing-xl));
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout__main {
+    margin-left: 0;
+  }
+}
+</style>

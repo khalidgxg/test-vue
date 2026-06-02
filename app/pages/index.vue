@@ -1,73 +1,67 @@
 <template>
-  <div class="page-home">
-    <section class="page-home__hero">
-      <h1>{{ appName }}</h1>
-      <p>A professionally structured Nuxt 4 application</p>
-      <div class="page-home__actions">
-        <UiButton variant="primary" @click="refreshHealth">Check Health</UiButton>
-        <UiButton variant="secondary" @click="counterStore.increment">
-          Count: {{ counterStore.count }}
-        </UiButton>
-      </div>
-    </section>
+  <div class="page-dashboard">
+    <div class="page-dashboard__top">
+      <DashboardCardsMyCards class="page-dashboard__cards" />
+      <DashboardCardsRecentTransaction class="page-dashboard__transactions" />
+    </div>
 
-    <section v-if="health" class="page-home__health">
-      <h2>Server Health</h2>
-      <pre>{{ JSON.stringify(health, null, 2) }}</pre>
-    </section>
+    <div class="page-dashboard__middle">
+      <DashboardCardsWeeklyActivity class="page-dashboard__activity" />
+      <DashboardCardsExpenseStatistics class="page-dashboard__expenses" />
+    </div>
+
+    <div class="page-dashboard__bottom">
+      <DashboardCardsQuickTransfer class="page-dashboard__transfer" />
+      <DashboardCardsBalanceHistory class="page-dashboard__balance" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { HealthCheck } from '#shared/types'
+definePageMeta({
+  layout: 'dashboard',
+})
 
-const config = useRuntimeConfig()
-const appName = computed(() => config.public.appName)
-const counterStore = useCounterStore()
-
-const { data: health, refresh: refreshHealth } = await useFetch<HealthCheck>('/api/health')
+useHead({
+  title: 'Dashboard',
+})
 </script>
 
 <style scoped>
-.page-home__hero {
-  text-align: center;
-  padding: 4rem 0;
-}
-
-.page-home__hero h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.page-home__hero p {
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-
-.page-home__actions {
+.page-dashboard {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.page-home__health {
-  margin-top: 3rem;
-  text-align: left;
+.page-dashboard__top {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 1.5rem;
 }
 
-.page-home__health h2 {
-  font-size: 1.25rem;
-  margin-bottom: 1rem;
+.page-dashboard__middle {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 1.5rem;
 }
 
-.page-home__health pre {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  padding: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  overflow-x: auto;
+.page-dashboard__bottom {
+  display: grid;
+  grid-template-columns: 445px 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1200px) {
+  .page-dashboard__top,
+  .page-dashboard__middle {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-dashboard__bottom {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
