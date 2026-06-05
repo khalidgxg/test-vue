@@ -1,13 +1,37 @@
+<script setup>
+import { computed } from 'vue'
+
+defineProps({
+  showAddCard: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
+
+const cards = computed(() => data.value?.cards || [])
+
+function formatNumber(num) {
+  return num.toLocaleString('en-US')
+}
+</script>
+
 <template>
-  <div class="my-cards">
+  <v-card class="my-cards" elevation="0">
     <div class="my-cards__header">
-      <h2 class="my-cards__title">My Cards</h2>
+      <h2 class="text-h6 font-weight-bold">My Cards</h2>
       <NuxtLink v-if="showAddCard" to="/credit-cards" class="my-cards__link">+ Add Card</NuxtLink>
       <NuxtLink v-else to="/transactions" class="my-cards__link">See All</NuxtLink>
     </div>
 
     <div class="my-cards__grid">
-      <div v-for="card in cards" :key="card.id" :class="['card', `card--${card.theme}`]">
+      <v-card
+        v-for="card in cards"
+        :key="card.id"
+        :class="['my-cards__card', `my-cards__card--${card.theme}`]"
+        elevation="0"
+      >
         <div class="card__top">
           <div class="card__balance">
             <span class="card__label">Balance</span>
@@ -64,31 +88,18 @@
             </svg>
           </div>
         </div>
-      </div>
+      </v-card>
     </div>
-  </div>
+  </v-card>
 </template>
 
-<script setup>
-import { computed } from 'vue'
-
-defineProps({
-  showAddCard: {
-    type: Boolean,
-    default: false,
-  },
-})
-
-const { data } = await useApi('/dashboard', { key: 'dashboard' })
-
-const cards = computed(() => data.value?.cards || [])
-
-function formatNumber(num) {
-  return num.toLocaleString('en-US')
-}
-</script>
-
 <style scoped>
+.my-cards {
+  padding: 1.5rem !important;
+  background: transparent !important;
+  border: 1px solid rgb(var(--v-theme-grey-100));
+}
+
 .my-cards__header {
   display: flex;
   align-items: center;
@@ -96,50 +107,42 @@ function formatNumber(num) {
   margin-bottom: 1rem;
 }
 
-.my-cards__title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
 .my-cards__link {
-  font-size: var(--font-size-sm);
-  color: var(--color-text);
+  font-size: 0.875rem;
+  color: rgb(var(--v-theme-grey-700, 51 60 106));
   font-weight: 600;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .my-cards__link:hover {
-  color: var(--color-primary);
+  color: rgb(var(--v-theme-primary));
 }
 
 .my-cards__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
-.card {
-  border-radius: 1.5rem;
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-  min-height: 210px;
-  display: flex;
+.my-cards__card {
+  border-radius: 1.25rem !important;
+  padding: 1.5rem !important;
+  min-height: 200px;
+  display: flex !important;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.card--dark {
-  background: linear-gradient(107deg, #4c49ed 0%, #0a06f4 100%);
+.my-cards__card--dark {
+  background: linear-gradient(107deg, #4c49ed 0%, #0a06f4 100%) !important;
   color: white;
 }
 
-.card--light {
-  background: var(--color-surface);
+.my-cards__card--light {
+  background: var(--color-surface) !important;
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgb(var(--v-theme-grey-100));
 }
 
 .card__top {
@@ -172,7 +175,7 @@ function formatNumber(num) {
 
 .card__details {
   display: flex;
-  gap: 3rem;
+  gap: 2rem;
 }
 
 .card__info-group {
@@ -201,8 +204,8 @@ function formatNumber(num) {
   border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.card--light .card__number-row {
-  border-top-color: var(--color-border);
+.my-cards__card--light .card__number-row {
+  border-top-color: rgb(var(--v-theme-grey-100));
 }
 
 .card__number {
@@ -211,7 +214,7 @@ function formatNumber(num) {
   letter-spacing: 0.15em;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .my-cards__grid {
     grid-template-columns: 1fr;
   }

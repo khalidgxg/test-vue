@@ -1,0 +1,120 @@
+/* === BankDash Design Tokens === */
+:root {
+  /* Primary color palette */
+  --primary-50: #eceaf2;
+  --primary-100: #c3bfd6;
+  --primary-200: #a79fc2;
+  --primary-300: #7e74a7;
+  --primary-400: #6585d0;
+  --primary-500: #396aff;
+  --primary-550: #5b8def;
+  --primary-600: #2d52cc;
+  --primary-700: #1e3a99;
+  --primary-800: #152566;
+  --primary-900: #0a1333;
+
+  /* Secondary color palette (cyan) */
+  --secondary-50: #eef8f8;
+  --secondary-100: #cae8e8;
+  --secondary-200: #b0dddd;
+  --secondary-300: #8ccece;
+  --secondary-400: #75c5c5;
+  --secondary-500: #06b6d4;
+  --secondary-600: #4ca6a6;
+  --secondary-700: #3b8181;
+  --secondary-800: #2e6464;
+  --secondary-900: #234c4c;
+
+  /* Success color palette */
+  --success-50: #e7f5e8;
+  --success-100: #cfebd1;
+  --success-200: #9fd6a3;
+  --success-300: #6fc274;
+  --success-400: #3fad46;
+  --success-500: #41d4a8;
+  --success-600: #0c7a13;
+  --success-700: #095c0e;
+  --success-800: #063d0a;
+  --success-900: #031f05;
+
+  /* Warning color palette */
+  --warning-50: #fff3e6;
+  --warning-100: #ffe7cc;
+  --warning-200: #ffcf99;
+  --warning-300: #ffb866;
+  --warning-400: #ffa033;
+  --warning-500: #fcaa0b;
+  --warning-600: #cc6d00;
+  --warning-700: #995200;
+  --warning-800: #663600;
+  --warning-900: #331b00;
+
+  /* Error color palette */
+  --error-50: #fcecec;
+  --error-100: #fadada;
+  --error-200: #f5b5b5;
+  --error-300: #ef8f8f;
+  --error-400: #ea6a6a;
+  --error-500: #ff4b4a;
+  --error-600: #b73737;
+  --error-700: #892929;
+  --error-800: #5c1c1c;
+  --error-900: #2e0e0e;
+
+  /* Grey color palette */
+  --grey-50: #f5f7fa;
+  --grey-100: #e6eff5;
+  --grey-200: #c6c6c6;
+  --grey-300: #aaaaaa;
+  --grey-400: #838383;
+  --grey-500: #6b6b6b;
+  --grey-600: #464646;
+  --grey-700: #404040;
+  --grey-800: #323232;
+  --grey-900: #1d1d1d;
+
+  /* Tertiary accent */
+  --tertiary-500: #f9b65d;
+
+  /* Surfaces (semantic aliases) */
+  --color-background: var(--grey-50);
+  --color-surface: #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-text: #343c6a;
+  --color-text-muted: #b1b1b1;
+  --color-text-light: #8ba3cb;
+  --color-border: var(--grey-100);
+
+  /* Card gradient colors */
+  --card-dark-start: #4c49ed;
+  --card-dark-mid: #0a06f4;
+  --card-dark-end: #2d2b8a;
+
+  /* Chart colors */
+  --color-chart-deposit: #396aff;
+  --color-chart-withdraw: #16dbcc;
+  --color-expense-entertainment: #343c6a;
+  --color-expense-bill: #fc7900;
+  --color-expense-investment: #fa00ff;
+  --color-expense-others: #396aff;
+
+  /* Header / body / disabled */
+  --text-header: #343c6a;
+  --text-body: #343c6a;
+  --text-disabled: #b1b1b1;
+  --overlay: rgba(0, 0, 0, 0.4);
+  --in-progress: #fcaa0b;
+}
+
+.text-gradient-primary {
+  color: var(--primary-500);
+  background-image: linear-gradient(290deg, var(--primary-500) 13%, var(--primary-550) 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.5;
+}
+
+html[lang="en"] .text-gradient-primary {
+  background-image: linear-gradient(119deg, var(--primary-500) 13%, var(--primary-550) 88%);
+}

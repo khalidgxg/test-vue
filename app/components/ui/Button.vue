@@ -1,73 +1,49 @@
 <template>
-  <button
-    :class="['ui-button', `ui-button--${variant}`]"
+  <v-btn
+    :color="vuetifyColor"
+    :variant="vuetifyVariant"
     :disabled="disabled"
-    @click="$emit('click')"
+    :loading="loading"
+    :size="size"
+    :block="block"
+    class="text-none font-weight-medium"
+    @click="emit('click', $event)"
   >
     <slot />
-  </button>
+  </v-btn>
 </template>
 
-<script setup>
-defineProps({
-  variant: {
-    type: String,
-    default: 'primary'
-  },
-  disabled: {
-    type: Boolean,
-    default: false
-  }
+<script setup lang="ts">
+import { computed } from 'vue'
+
+interface Props {
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'success'
+  disabled?: boolean
+  loading?: boolean
+  size?: 'small' | 'default' | 'large'
+  block?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  variant: 'primary',
+  disabled: false,
+  loading: false,
+  size: 'default',
+  block: false,
 })
 
-defineEmits(['click'])
+const emit = defineEmits<{
+  click: [event: MouseEvent]
+}>()
+
+const variantMap = {
+  primary: { color: 'primary', variant: 'flat' as const },
+  secondary: { color: 'surface', variant: 'outlined' as const },
+  ghost: { color: undefined, variant: 'text' as const },
+  danger: { color: 'error', variant: 'flat' as const },
+  success: { color: 'success', variant: 'flat' as const },
+}
+
+const vuetifyColor = computed(() => variantMap[props.variant].color)
+const vuetifyVariant = computed(() => variantMap[props.variant].variant)
 </script>
-
-<style scoped>
-.ui-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-}
-
-.ui-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.ui-button--primary {
-  background-color: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
-}
-
-.ui-button--primary:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.ui-button--secondary {
-  background-color: var(--color-surface);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
-
-.ui-button--secondary:hover:not(:disabled) {
-  background-color: var(--color-background);
-}
-
-.ui-button--ghost {
-  background-color: transparent;
-  color: var(--color-text-muted);
-}
-
-.ui-button--ghost:hover:not(:disabled) {
-  background-color: var(--color-background);
-}
-</style>

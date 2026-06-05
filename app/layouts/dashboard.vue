@@ -35,5 +35,10 @@
   .dashboard-layout__main {
     margin-left: 0;
   }
+
+  .dashboard-layout__content {
+    padding: 1.25rem;
+    padding-top: calc(var(--topbar-height) + 1.25rem);
+  }
 }
 </style>

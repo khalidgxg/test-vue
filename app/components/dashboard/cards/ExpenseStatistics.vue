@@ -1,166 +1,143 @@
-<template>
-  <div class="expense-statistics">
-    <div class="expense-statistics__header">
-      <h2 class="expense-statistics__title">Expense Statistics</h2>
-    </div>
-
-    <div class="expense-statistics__chart">
-      <svg viewBox="0 0 260 260" class="expense-statistics__svg">
-        <g transform="translate(130, 130)">
-          <path
-            v-for="(segment, index) in segments"
-            :key="index"
-            :d="segment.path"
-            :fill="segment.color"
-            stroke="#FFFFFF"
-            stroke-width="3"
-            stroke-linejoin="round"
-            class="expense-statistics__segment"
-          />
-          <!-- Labels on segments -->
-          <g v-for="(segment, index) in segments" :key="'label-' + index">
-            <text
-              :x="segment.labelX"
-              :y="segment.labelY - 6"
-              text-anchor="middle"
-              class="expense-statistics__segment-percent"
-              fill="white"
-              font-weight="700"
-              font-size="14"
-            >
-              {{ segment.percentage }}%
-            </text>
-            <text
-              :x="segment.labelX"
-              :y="segment.labelY + 10"
-              text-anchor="middle"
-              class="expense-statistics__segment-name"
-              fill="white"
-              font-weight="500"
-              font-size="9"
-            >
-              {{ segment.name }}
-            </text>
-          </g>
-        </g>
-      </svg>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 
-const { data } = await useApi('/dashboard', { key: 'dashboard' })
-
-const expenses = computed(() => {
-  const raws = data.value?.expense_statistics || []
-  const radii = {
-    Entertainment: 92,
-    'Bill Expense': 112,
-    Others: 100,
-    Investment: 118
-  }
-  return raws.map(e => ({
-    category: e.label,
-    percentage: e.percentage,
-    color: e.color,
-    radius: radii[e.label] || 100
-  }))
+const props = defineProps({
+  data: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const segments = computed(() => {
-  const list = []
-  const gapAngle = 2 // small white gap between slices
-  let currentAngle = -90
-
-  for (const expense of expenses.value) {
-    const angle = (expense.percentage / 100) * 360
-    const startAngle = currentAngle + gapAngle / 2
-    const endAngle = currentAngle + angle - gapAngle / 2
-    const midAngle = currentAngle + angle / 2
-    const radius = expense.radius
-
-    const startRad = (startAngle * Math.PI) / 180
-    const endRad = (endAngle * Math.PI) / 180
-    const midRad = (midAngle * Math.PI) / 180
-
-    const x1 = radius * Math.cos(startRad)
-    const y1 = radius * Math.sin(startRad)
-    const x2 = radius * Math.cos(endRad)
-    const y2 = radius * Math.sin(endRad)
-
-    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
-
-    const path = `M 0 0 L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
-
-    // Label position (around 62% of this slice's radius from center)
-    const labelRadius = radius * 0.62
-    const labelX = labelRadius * Math.cos(midRad)
-    const labelY = labelRadius * Math.sin(midRad)
-
-    list.push({
-      path,
-      color: expense.color,
-      percentage: expense.percentage,
-      name: expense.category,
-      labelX,
-      labelY,
-    })
-    currentAngle += angle
-  }
-  return list
-})
+const stats = computed(() => props.data || [])
 </script>
+
+<template>
+  <v-card class="expense-statistics" elevation="0">
+    <h2 class="text-h6 font-weight-bold mb-4">Expense Statistics</h2>
+
+    <div class="expense-statistics__chart">
+      <div
+        v-for="(item, idx) in stats"
+        :key="idx"
+        class="expense-statistics__item"
+      >
+        <div
+          class="expense-statistics__bar"
+          :style="{
+            height: `${item.percentage * 1.5}px`,
+            backgroundColor: item.color,
+          }"
+        />
+        <span
+          v-if="idx === 1 || idx === 2"
+          class="expense-statistics__bar-shadow"
+          :style="{ backgroundColor: item.color }"
+        />
+      </div>
+    </div>
+
+    <div class="expense-statistics__legend">
+      <div
+        v-for="(item, idx) in stats"
+        :key="idx"
+        class="expense-statistics__legend-item"
+      >
+        <span
+          class="expense-statistics__legend-dot"
+          :style="{ backgroundColor: item.color }"
+        />
+        <div class="expense-statistics__legend-text">
+          <span class="expense-statistics__legend-label">{{ item.label }}</span>
+          <span class="expense-statistics__legend-value">{{ item.percentage }}%</span>
+        </div>
+      </div>
+    </div>
+  </v-card>
+</template>
 
 <style scoped>
 .expense-statistics {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-2xl);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-}
-
-.expense-statistics__header {
-  margin-bottom: 1rem;
-}
-
-.expense-statistics__title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text);
+  padding: 1.5rem !important;
+  background: transparent !important;
+  border: 1px solid rgb(var(--v-theme-grey-100));
+  height: 100%;
 }
 
 .expense-statistics__chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  height: 130px;
+  padding: 1rem 0 0;
+  margin-bottom: 1.5rem;
+}
+
+.expense-statistics__item {
   flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.expense-statistics__bar {
+  width: 100%;
+  max-width: 30px;
+  border-radius: 12px 12px 0 0;
+  transition: height 0.3s ease;
+  margin: 0 auto;
+}
+
+.expense-statistics__bar-shadow {
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 75%;
+  height: 6px;
+  border-radius: 50%;
+  filter: blur(8px);
+  opacity: 0.4;
+}
+
+.expense-statistics__legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgb(var(--v-theme-grey-100));
+}
+
+.expense-statistics__legend-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
 }
 
-.expense-statistics__svg {
-  width: 240px;
-  height: 240px;
-  max-width: 100%;
+.expense-statistics__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.expense-statistics__segment {
-  transition: opacity 0.2s ease;
-  cursor: pointer;
+.expense-statistics__legend-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.expense-statistics__segment:hover {
-  opacity: 0.85;
+.expense-statistics__legend-label {
+  font-size: 0.6875rem;
+  color: rgb(var(--v-theme-grey-500));
 }
 
-.expense-statistics__segment-percent {
-  font-family: var(--font-family);
-  pointer-events: none;
-}
-
-.expense-statistics__segment-name {
-  font-family: var(--font-family);
-  pointer-events: none;
+.expense-statistics__legend-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text);
 }
 </style>

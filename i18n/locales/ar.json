@@ -1,0 +1,55 @@
+{
+  "app": {
+    "name": "BankDash"
+  },
+  "shared": {
+    "next": "التالي",
+    "prev": "السابق",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "loading": "جاري التحميل...",
+    "no_data": "لا توجد بيانات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "logout": "تسجيل الخروج",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "remember_me": "تذكرني",
+    "forgot_password": "نسيت كلمة المرور؟",
+    "no_account": "ليس لديك حساب؟",
+    "login_success": "مرحباً بعودتك!",
+    "login_failed": "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+  },
+  "nav": {
+    "dashboard": "لوحة التحكم",
+    "transactions": "المعاملات",
+    "accounts": "الحسابات",
+    "investments": "الاستثمارات",
+    "credit_cards": "البطاقات",
+    "loans": "القروض",
+    "services": "الخدمات",
+    "privileges": "امتيازاتي",
+    "settings": "الإعدادات"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "edit_profile": "تعديل الملف الشخصي",
+    "preference": "التفضيلات",
+    "security": "الأمان"
+  },
+  "v": {
+    "field_required": "هذا الحقل مطلوب",
+    "invalid_email": "البريد الإلكتروني غير صحيح",
+    "phone": "رقم الجوال غير صحيح",
+    "min_char": "يجب أن يكون 8 أحرف على الأقل",
+    "min_3char": "يجب أن يكون 3 أحرف على الأقل",
+    "must_be_number": "يجب أن يكون رقماً",
+    "the": "يجب أن يحتوي",
+    "field": "يجب أن يحتوي"
+  }
+}

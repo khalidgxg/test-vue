@@ -1,25 +1,21 @@
 <template>
-  <div class="app-layout">
-    <AppHeader />
-    <main class="app-layout__main">
-      <slot />
-    </main>
-    <AppFooter />
-  </div>
+  <v-app>
+    <DashboardSidebar />
+
+    <v-main>
+      <DashboardTopbar />
+      <v-container fluid class="dashboard-content pa-6">
+        <slot />
+      </v-container>
+    </v-main>
+
+    <BaseSharedAlert />
+  </v-app>
 </template>
 
 <style scoped>
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-}
-
-.app-layout__main {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
+.dashboard-content {
+  background-color: var(--color-background);
+  min-height: 100vh;
 }
 </style>

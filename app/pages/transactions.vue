@@ -177,7 +177,7 @@
 import { ref, computed } from 'vue'
 
 definePageMeta({
-  layout: 'dashboard',
+  
   title: 'Transactions',
 })
 

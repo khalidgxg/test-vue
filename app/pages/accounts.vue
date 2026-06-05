@@ -381,7 +381,7 @@
 import { computed } from 'vue'
 
 definePageMeta({
-  layout: 'dashboard',
+  
   title: 'Accounts',
 })
 

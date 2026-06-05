@@ -55,7 +55,7 @@ d="M24 10L27.5 20H38L29.5 26L33 36L24 30L15 36L18.5 26L10 20H20.5L24 10Z"
 import { computed } from 'vue'
 
 definePageMeta({
-  layout: 'dashboard',
+  
   title: 'My Privileges',
 })
 

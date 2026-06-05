@@ -20,7 +20,7 @@ Route::get('/dashboard', function () {
         'cards' => [
             [
                 'id' => 1,
-                'balance' => 5756,
+                'balance' => 600,
                 'number' => '3778 **** **** 1234',
                 'holder' => 'Eddy Cusuma',
                 'expiry' => '12/22',
@@ -460,6 +460,52 @@ Route::get('/settings', function () {
 });
 
 // POST /api/settings
+// POST /api/auth/login
+Route::post('/auth/login', function (Request $request) {
+    $validated = $request->validate([
+        'email' => 'required|email|max:255',
+        'password' => 'required|string|min:8',
+    ]);
+
+    // Demo authentication (replace with real auth in production)
+    if ($validated['email'] === 'admin@admin.com' && $validated['password'] === 'password') {
+        return response()->json([
+            'user' => [
+                'id' => 1,
+                'name' => 'Admin User',
+                'email' => $validated['email'],
+                'user_type' => 'admin',
+                'avatar' => 'https://i.pravatar.cc/80?img=47',
+            ],
+            'token' => 'demo-jwt-token-' . bin2hex(random_bytes(16)),
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Invalid credentials',
+    ], 401);
+});
+
+// GET /api/auth/me
+Route::get('/auth/me', function (Request $request) {
+    $token = $request->bearerToken();
+    if (!$token) {
+        return response()->json(['message' => 'Unauthenticated'], 401);
+    }
+    return response()->json([
+        'id' => 1,
+        'name' => 'Admin User',
+        'email' => 'admin@admin.com',
+        'user_type' => 'admin',
+        'avatar' => 'https://i.pravatar.cc/80?img=47',
+    ]);
+});
+
+// POST /api/auth/logout
+Route::post('/auth/logout', function () {
+    return response()->json(['success' => true]);
+});
+
 Route::post('/settings', function (Request $request) {
     // Validate request strictly according to secure coding rules
     $validated = $request->validate([

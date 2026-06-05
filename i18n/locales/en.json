@@ -1,0 +1,55 @@
+{
+  "app": {
+    "name": "BankDash"
+  },
+  "shared": {
+    "next": "Next",
+    "prev": "Previous",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "no_data": "No data available"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?",
+    "no_account": "Don't have an account?",
+    "login_success": "Welcome back!",
+    "login_failed": "Invalid email or password"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "accounts": "Accounts",
+    "investments": "Investments",
+    "credit_cards": "Credit Cards",
+    "loans": "Loans",
+    "services": "Services",
+    "privileges": "My Privileges",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "edit_profile": "Edit Profile",
+    "preference": "Preferences",
+    "security": "Security"
+  },
+  "v": {
+    "field_required": "This field is required",
+    "invalid_email": "Invalid email address",
+    "phone": "Invalid phone number",
+    "min_char": "Must be at least 8 characters",
+    "min_3char": "Must be at least 3 characters",
+    "must_be_number": "Must be a number",
+    "the": "The",
+    "field": "Field"
+  }
+}
