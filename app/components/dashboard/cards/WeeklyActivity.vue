@@ -87,15 +87,13 @@ interface ChartDataItem {
   withdrawHeight: number
 }
 
-const rawData = [
-  { day: 'Sat', deposit: 480, withdraw: 240 },
-  { day: 'Sun', deposit: 350, withdraw: 130 },
-  { day: 'Mon', deposit: 320, withdraw: 250 },
-  { day: 'Tue', deposit: 470, withdraw: 200 },
-  { day: 'Wed', deposit: 150, withdraw: 280 },
-  { day: 'Thu', deposit: 380, withdraw: 250 },
-  { day: 'Fri', deposit: 400, withdraw: 320 },
-]
+import { computed } from 'vue'
+
+const { data } = await useApi<{
+  weekly_activity: { day: string; withdraw: number; deposit: number }[]
+}>('/dashboard', { key: 'dashboard' })
+
+const rawData = computed(() => data.value?.weekly_activity || [])
 
 const svgWidth = 560
 const svgHeight = 260
@@ -105,7 +103,7 @@ const gridLeft = 40
 const barWidth = 18
 const barGap = 6
 const barGroupPadding = 20
-const barGroupWidth = (svgWidth - gridLeft - 10) / rawData.length
+const barGroupWidth = computed(() => (svgWidth - gridLeft - 10) / Math.max(rawData.value.length, 1))
 
 const maxValue = 500
 
@@ -114,11 +112,15 @@ const yLabels = [0, 100, 200, 300, 400, 500].reverse().map((value) => ({
   y: chartTop + chartAreaHeight - (value / maxValue) * chartAreaHeight,
 }))
 
-const chartData: ChartDataItem[] = rawData.map((item) => ({
-  ...item,
-  depositHeight: Math.max((item.deposit / maxValue) * chartAreaHeight, 2),
-  withdrawHeight: Math.max((item.withdraw / maxValue) * chartAreaHeight, 2),
-}))
+const chartData = computed<ChartDataItem[]>(() => {
+  return rawData.value.map((item) => ({
+    day: item.day,
+    deposit: item.deposit,
+    withdraw: item.withdraw,
+    depositHeight: Math.max((item.deposit / maxValue) * chartAreaHeight, 2),
+    withdrawHeight: Math.max((item.withdraw / maxValue) * chartAreaHeight, 2),
+  }))
+})
 </script>
 
 <style scoped>

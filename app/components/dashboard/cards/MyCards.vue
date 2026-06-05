@@ -70,6 +70,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type { Card } from '#shared/types'
+
 defineProps({
   showAddCard: {
     type: Boolean,
@@ -77,33 +80,11 @@ defineProps({
   },
 })
 
-interface Card {
-  id: number
-  balance: number
-  number: string
-  holder: string
-  expiry: string
-  theme: 'dark' | 'light'
-}
+const { data } = await useApi<{
+  cards: Card[]
+}>('/dashboard', { key: 'dashboard' })
 
-const cards: Card[] = [
-  {
-    id: 1,
-    balance: 5756,
-    number: '3778 **** **** 1234',
-    holder: 'Eddy Cusuma',
-    expiry: '12/22',
-    theme: 'dark',
-  },
-  {
-    id: 2,
-    balance: 5756,
-    number: '3778 **** **** 1234',
-    holder: 'Eddy Cusuma',
-    expiry: '12/22',
-    theme: 'light',
-  },
-]
+const cards = computed(() => data.value?.cards || [])
 
 function formatNumber(num: number): string {
   return num.toLocaleString('en-US')

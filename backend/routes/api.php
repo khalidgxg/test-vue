@@ -151,13 +151,12 @@ Route::get('/transactions', function () {
             ]
         ],
         'my_expense' => [
-            ['day' => 'Sat', 'amount' => 420],
-            ['day' => 'Sun', 'amount' => 300],
-            ['day' => 'Mon', 'amount' => 280],
-            ['day' => 'Tue', 'amount' => 750],
-            ['day' => 'Wed', 'amount' => 470],
-            ['day' => 'Thu', 'amount' => 500],
-            ['day' => 'Fri', 'amount' => 640]
+            ['month' => 'Aug', 'percentage' => 65, 'active' => false],
+            ['month' => 'Sep', 'percentage' => 85, 'active' => false],
+            ['month' => 'Oct', 'percentage' => 68, 'active' => false],
+            ['month' => 'Nov', 'percentage' => 45, 'active' => false],
+            ['month' => 'Dec', 'percentage' => 80, 'active' => true, 'valueLabel' => '$12,500'],
+            ['month' => 'Jan', 'percentage' => 72, 'active' => false],
         ]
     ]);
 });

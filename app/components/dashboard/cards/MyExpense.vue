@@ -23,21 +23,14 @@
 </template>
 
 <script setup lang="ts">
-interface ExpenseBar {
-  month: string
-  percentage: number
-  active: boolean
-  valueLabel?: string
-}
+import { computed } from 'vue'
+import type { ExpenseBar } from '#shared/types'
 
-const expenseData: ExpenseBar[] = [
-  { month: 'Aug', percentage: 65, active: false },
-  { month: 'Sep', percentage: 85, active: false },
-  { month: 'Oct', percentage: 68, active: false },
-  { month: 'Nov', percentage: 45, active: false },
-  { month: 'Dec', percentage: 80, active: true, valueLabel: '$12,500' },
-  { month: 'Jan', percentage: 72, active: false },
-]
+const { data } = await useApi<{
+  my_expense: ExpenseBar[]
+}>('/transactions', { key: 'transactions' })
+
+const expenseData = computed(() => data.value?.my_expense || [])
 </script>
 
 <style scoped>

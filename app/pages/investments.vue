@@ -202,6 +202,16 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type {
+  SummaryStatRaw,
+  InvestmentRaw,
+  StockRaw,
+  SummaryStat,
+  Investment,
+  Stock
+} from '#shared/types'
+
 definePageMeta({
   layout: 'dashboard',
   title: 'Investments',
@@ -209,76 +219,49 @@ definePageMeta({
 
 useHead({ title: 'Investments - BankDash' })
 
-interface SummaryStat {
-  id: number
-  label: string
-  value: string
-  iconBg: string
-  icon: string
-}
+const { data } = await useApi<{
+  summary_stats: SummaryStatRaw[]
+  yearly_data: { year: number; value: number }[]
+  monthly_data: { month: string; value: number }[]
+  my_investments: InvestmentRaw[]
+  trending_stocks: StockRaw[]
+}>('/investments')
 
-interface Investment {
-  id: number
-  name: string
-  category: string
-  amount: string
-  returnValue: string
-  returnPositive: boolean
-  iconBg: string
-  icon: string
-}
+const summaryStats = computed<SummaryStat[]>(() => {
+  const stats = data.value?.summary_stats || []
+  const bgMap: Record<string, string> = {
+    invested: '#DCFAF8',
+    number: '#FFE0EB',
+    rate: '#E7EDFF'
+  }
+  const iconMap: Record<string, string> = {
+    invested: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="8" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 17" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    number: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="11" r="5" stroke="#FF4B4A" stroke-width="1.8"/><circle cx="19" cy="19" r="5" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
+    rate: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14C5 14 8 8 14 8C20 8 23 14 23 14C23 14 20 20 14 20C8 20 5 14 5 14Z" stroke="#396AFF" stroke-width="1.8"/><circle cx="14" cy="14" r="3" stroke="#396AFF" stroke-width="1.8"/></svg>'
+  }
+  return stats.map((s, idx) => ({
+    id: idx + 1,
+    label: s.label,
+    value: s.value,
+    iconBg: bgMap[s.icon] || '#DCFAF8',
+    icon: iconMap[s.icon] || ''
+  }))
+})
 
-interface Stock {
-  id: number
-  slNo: string
-  name: string
-  price: string
-  returnValue: string
-  returnPositive: boolean
-}
+const yearlyData = computed(() => {
+  const raw = data.value?.yearly_data || []
+  return raw.map(d => ({ year: String(d.year), value: d.value }))
+})
 
-const summaryStats: SummaryStat[] = [
-  {
-    id: 1,
-    label: 'Total Invested Amount',
-    value: '$150,000',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="8" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 17" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 2,
-    label: 'Number of Investments',
-    value: '1,250',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="11" r="5" stroke="#FF4B4A" stroke-width="1.8"/><circle cx="19" cy="19" r="5" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
-  },
-  {
-    id: 3,
-    label: 'Rate of Return',
-    value: '+5.80%',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14C5 14 8 8 14 8C20 8 23 14 23 14C23 14 20 20 14 20C8 20 5 14 5 14Z" stroke="#396AFF" stroke-width="1.8"/><circle cx="14" cy="14" r="3" stroke="#396AFF" stroke-width="1.8"/></svg>',
-  },
-]
-
-// ── Yearly Chart ─────────────────────────────────────────────────────────────
-const yearlyData = [
-  { year: '2016', value: 5000 },
-  { year: '2017', value: 22000 },
-  { year: '2018', value: 15000 },
-  { year: '2019', value: 35000 },
-  { year: '2020', value: 20000 },
-  { year: '2021', value: 28000 },
-]
-
-const yearlyChart = (() => {
+const yearlyChart = computed(() => {
   const width = 420
   const height = 220
   const gridLeft = 55
   const chartTop = 15
   const areaH = 170
   const maxVal = 40000
-  const xSpacing = (width - gridLeft - 10) / (yearlyData.length - 1)
+  const yData = yearlyData.value
+  const xSpacing = (width - gridLeft - 10) / Math.max(yData.length - 1, 1)
   const yLabels = [0, 10000, 20000, 30000, 40000].reverse().map((v) => ({
     value: v,
     y: chartTop + areaH - (v / maxVal) * areaH,
@@ -293,46 +276,54 @@ const yearlyChart = (() => {
     maxVal,
     xSpacing,
     yLabels,
-    xLabels: yearlyData.map((d) => d.year),
+    xLabels: yData.map((d) => d.year),
   }
-})()
+})
 
-const yearlyPoints = yearlyData.map((d, i) => ({
-  x: yearlyChart.gridLeft + i * yearlyChart.xSpacing,
-  y: yearlyChart.chartTop + yearlyChart.areaH - (d.value / yearlyChart.maxVal) * yearlyChart.areaH,
-}))
+const yearlyPoints = computed(() => {
+  const yData = yearlyData.value
+  const chart = yearlyChart.value
+  return yData.map((d, i) => ({
+    x: chart.gridLeft + i * chart.xSpacing,
+    y: chart.chartTop + chart.areaH - (d.value / chart.maxVal) * chart.areaH,
+  }))
+})
 
-const yearlyLinePath = yearlyPoints
-  .map((p, i) => {
-    if (i === 0) return `M ${p.x} ${p.y}`
-    const prev = yearlyPoints[i - 1]!
-    const t = 0.35
-    return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
-  })
-  .join(' ')
+const yearlyLinePath = computed(() => {
+  const pts = yearlyPoints.value
+  return pts
+    .map((p, i) => {
+      if (i === 0) return `M ${p.x} ${p.y}`
+      const prev = pts[i - 1]!
+      const t = 0.35
+      return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
+    })
+    .join(' ')
+})
 
-const yearlyFirst = yearlyPoints[0]!
-const yearlyLast = yearlyPoints[yearlyPoints.length - 1]!
-const yearlyAreaPath = `${yearlyLinePath} L ${yearlyLast.x} ${yearlyChart.chartTop + yearlyChart.areaH} L ${yearlyFirst.x} ${yearlyChart.chartTop + yearlyChart.areaH} Z`
+const yearlyAreaPath = computed(() => {
+  const pts = yearlyPoints.value
+  const chart = yearlyChart.value
+  if (pts.length === 0) return ''
+  const first = pts[0]!
+  const last = pts[pts.length - 1]!
+  return `${yearlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
+})
 
-// ── Monthly Chart ─────────────────────────────────────────────────────────────
-const monthlyData = [
-  { year: '2016', value: 10000 },
-  { year: '2017', value: 18000 },
-  { year: '2018', value: 30000 },
-  { year: '2019', value: 22000 },
-  { year: '2020', value: 35000 },
-  { year: '2021', value: 38000 },
-]
+const monthlyData = computed(() => {
+  const raw = data.value?.monthly_data || []
+  return raw.map(d => ({ year: d.month, value: d.value }))
+})
 
-const monthlyChart = (() => {
+const monthlyChart = computed(() => {
   const width = 420
   const height = 220
   const gridLeft = 55
   const chartTop = 15
   const areaH = 170
   const maxVal = 40000
-  const xSpacing = (width - gridLeft - 10) / (monthlyData.length - 1)
+  const mData = monthlyData.value
+  const xSpacing = (width - gridLeft - 10) / Math.max(mData.length - 1, 1)
   const yLabels = [0, 10000, 20000, 30000, 40000].reverse().map((v) => ({
     value: v,
     y: chartTop + areaH - (v / maxVal) * areaH,
@@ -347,80 +338,75 @@ const monthlyChart = (() => {
     maxVal,
     xSpacing,
     yLabels,
-    xLabels: monthlyData.map((d) => d.year),
+    xLabels: mData.map((d) => d.year),
   }
-})()
+})
 
-const monthlyPoints = monthlyData.map((d, i) => ({
-  x: monthlyChart.gridLeft + i * monthlyChart.xSpacing,
-  y:
-    monthlyChart.chartTop +
-    monthlyChart.areaH -
-    (d.value / monthlyChart.maxVal) * monthlyChart.areaH,
-}))
+const monthlyPoints = computed(() => {
+  const mData = monthlyData.value
+  const chart = monthlyChart.value
+  return mData.map((d, i) => ({
+    x: chart.gridLeft + i * chart.xSpacing,
+    y: chart.chartTop + chart.areaH - (d.value / chart.maxVal) * chart.areaH,
+  }))
+})
 
-const monthlyLinePath = monthlyPoints
-  .map((p, i) => {
-    if (i === 0) return `M ${p.x} ${p.y}`
-    const prev = monthlyPoints[i - 1]!
-    const t = 0.4
-    return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
-  })
-  .join(' ')
+const monthlyLinePath = computed(() => {
+  const pts = monthlyPoints.value
+  return pts
+    .map((p, i) => {
+      if (i === 0) return `M ${p.x} ${p.y}`
+      const prev = pts[i - 1]!
+      const t = 0.4
+      return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
+    })
+    .join(' ')
+})
 
-const monthlyFirst = monthlyPoints[0]!
-const monthlyLast = monthlyPoints[monthlyPoints.length - 1]!
-const monthlyAreaPath = `${monthlyLinePath} L ${monthlyLast.x} ${monthlyChart.chartTop + monthlyChart.areaH} L ${monthlyFirst.x} ${monthlyChart.chartTop + monthlyChart.areaH} Z`
+const monthlyAreaPath = computed(() => {
+  const pts = monthlyPoints.value
+  const chart = monthlyChart.value
+  if (pts.length === 0) return ''
+  const first = pts[0]!
+  const last = pts[pts.length - 1]!
+  return `${monthlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
+})
 
-// ── My Investments ─────────────────────────────────────────────────────────────
-const myInvestments: Investment[] = [
-  {
-    id: 1,
-    name: 'Apple Store',
-    category: 'E-commerce, Marketplace',
-    amount: '$54,000',
-    returnValue: '+16%',
-    returnPositive: true,
-    iconBg: '#FFE0EB',
-    icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C9 4 7 6.5 7 9C7 13 10 17 12 20C14 17 17 13 17 9C17 6.5 15 4 12 4Z" stroke="#FF4B4A" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#FF4B4A"/></svg>',
-  },
-  {
-    id: 2,
-    name: 'Samsung Mobile',
-    category: 'E-commerce, Marketplace',
-    amount: '$25,300',
-    returnValue: '-4%',
-    returnPositive: false,
-    iconBg: '#E7EDFF',
-    icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="7" y="3" width="10" height="18" rx="2" stroke="#396AFF" stroke-width="1.5"/><circle cx="12" cy="18" r="1" fill="#396AFF"/></svg>',
-  },
-  {
-    id: 3,
-    name: 'Tesla Motors',
-    category: 'Electric Vehicles',
-    amount: '$8,200',
-    returnValue: '+25%',
-    returnPositive: true,
-    iconBg: '#FFF5D9',
-    icon: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 10H19M7 10C7 7 9 4 12 4C15 4 17 7 17 10" stroke="#FFBB38" stroke-width="1.5"/><path d="M12 10V20" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/><path d="M9 20H15" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-]
+const myInvestments = computed<Investment[]>(() => {
+  const raw = data.value?.my_investments || []
+  const bgMap: Record<string, string> = {
+    apple: '#FFE0EB',
+    google: '#E7EDFF',
+    tesla: '#FFF5D9',
+  }
+  const iconMap: Record<string, string> = {
+    apple: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C9 4 7 6.5 7 9C7 13 10 17 12 20C14 17 17 13 17 9C17 6.5 15 4 12 4Z" stroke="#FF4B4A" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#FF4B4A"/></svg>',
+    google: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="7" y="3" width="10" height="18" rx="2" stroke="#396AFF" stroke-width="1.5"/><circle cx="12" cy="18" r="1" fill="#396AFF"/></svg>',
+    tesla: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 10H19M7 10C7 7 9 4 12 4C15 4 17 7 17 10" stroke="#FFBB38" stroke-width="1.5"/><path d="M12 10V20" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/><path d="M9 20H15" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/></svg>',
+  }
+  return raw.map(inv => ({
+    id: inv.id,
+    name: inv.name,
+    category: inv.category,
+    amount: '$' + inv.amount.toLocaleString('en-US'),
+    returnValue: (inv.returnRate > 0 ? '+' : '') + inv.returnRate + '%',
+    returnPositive: inv.returnType === 'up',
+    iconBg: bgMap[inv.icon] || '#FFE0EB',
+    icon: iconMap[inv.icon] || '',
+  }))
+})
 
-// ── Trending Stocks ─────────────────────────────────────────────────────────────
-const trendingStocks: Stock[] = [
-  { id: 1, slNo: '01.', name: 'Trivago', price: '$520', returnValue: '+5%', returnPositive: true },
-  { id: 2, slNo: '02.', name: 'Canon', price: '$480', returnValue: '+10%', returnPositive: true },
-  {
-    id: 3,
-    slNo: '03.',
-    name: 'Uber Food',
-    price: '$350',
-    returnValue: '-3%',
-    returnPositive: false,
-  },
-  { id: 4, slNo: '04.', name: 'Nokia', price: '$940', returnValue: '+2%', returnPositive: true },
-  { id: 5, slNo: '05.', name: 'Tiktok', price: '$670', returnValue: '-12%', returnPositive: false },
-]
+const trendingStocks = computed<Stock[]>(() => {
+  const raw = data.value?.trending_stocks || []
+  return raw.map((stock, index) => ({
+    id: stock.id,
+    slNo: `0${index + 1}.`,
+    name: stock.name,
+    price: '$' + stock.price.toLocaleString('en-US'),
+    returnValue: (stock.returnRate > 0 ? '+' : '') + stock.returnRate + '%',
+    returnPositive: stock.returnType === 'up',
+  }))
+})
 </script>
 
 <style scoped>

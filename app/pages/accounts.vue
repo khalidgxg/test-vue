@@ -271,7 +271,7 @@
           <div class="account-card__top">
             <div>
               <p class="account-card__label">Balance</p>
-              <p class="account-card__balance">$5,756</p>
+              <p class="account-card__balance">{{ card ? '$' + formatNumber(card.balance) : '$0' }}</p>
             </div>
             <svg width="42" height="42" viewBox="0 0 42 42" fill="none" aria-hidden="true">
               <rect x="5" y="7" width="32" height="28" rx="7" stroke="white" stroke-width="2.2" />
@@ -282,16 +282,16 @@
           <div class="account-card__details">
             <div>
               <p class="account-card__detail-label">CARD HOLDER</p>
-              <p class="account-card__detail-value">Eddy Cusuma</p>
+              <p class="account-card__detail-value">{{ card?.holder || 'Eddy Cusuma' }}</p>
             </div>
             <div>
               <p class="account-card__detail-label">VALID THRU</p>
-              <p class="account-card__detail-value">12/22</p>
+              <p class="account-card__detail-value">{{ card?.expiry || '12/22' }}</p>
             </div>
           </div>
 
           <div class="account-card__number-row">
-            <p class="account-card__number">3778 **** **** 1234</p>
+            <p class="account-card__number">{{ card?.number || '3778 **** **** 1234' }}</p>
             <div class="account-card__brand" aria-hidden="true">
               <span></span>
               <span></span>
@@ -378,6 +378,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type {
+  SummaryMetric,
+  AccountTransaction,
+  ChartDay,
+  Invoice
+} from '#shared/types'
+
 definePageMeta({
   layout: 'dashboard',
   title: 'Accounts',
@@ -387,132 +395,30 @@ useHead({
   title: 'Accounts - BankDash',
 })
 
-type SummaryTone = 'balance' | 'income' | 'expense' | 'saving'
-type TransactionTone = 'cyan' | 'blue' | 'pink'
-type TransactionType = 'income' | 'expense'
-type SummaryIcon = SummaryTone
-type TransactionIcon = 'subscription' | 'service' | 'user'
-type InvoiceTone = 'cyan' | 'yellow' | 'blue' | 'pink'
-type InvoiceIcon = 'apple' | 'user' | 'playstation'
+const { data } = await useApi<{
+  summary_metrics: SummaryMetric[]
+  transactions: AccountTransaction[]
+  chart_days: ChartDay[]
+  invoices: Invoice[]
+  card: { balance: number; holder: string; expiry: string; number: string }
+}>('/accounts')
 
-interface SummaryMetric {
-  id: SummaryTone
-  label: string
-  value: string
-  icon: SummaryIcon
-  tone: SummaryTone
-}
-
-interface AccountTransaction {
-  id: number
-  title: string
-  date: string
-  category: string
-  card: string
-  status: string
-  amount: number
-  type: TransactionType
-  tone: TransactionTone
-  icon: TransactionIcon
-}
-
-interface ChartDay {
-  day: string
-  debit: number
-  credit: number
-}
-
-interface ChartBar extends ChartDay {
-  debitHeight: number
-  creditHeight: number
-}
-
-interface Invoice {
-  id: number
-  name: string
-  time: string
-  amount: number
-  tone: InvoiceTone
-  icon: InvoiceIcon
-}
-
-const summaryMetrics: SummaryMetric[] = [
-  { id: 'balance', label: 'My Balance', value: '$12,750', icon: 'balance', tone: 'balance' },
-  { id: 'income', label: 'Income', value: '$5,600', icon: 'income', tone: 'income' },
-  { id: 'expense', label: 'Expense', value: '$3,460', icon: 'expense', tone: 'expense' },
-  { id: 'saving', label: 'Total Saving', value: '$7,920', icon: 'saving', tone: 'saving' },
-]
-
-const transactions: AccountTransaction[] = [
-  {
-    id: 1,
-    title: 'Spotify Subscription',
-    date: '25 Jan 2021',
-    category: 'Shopping',
-    card: '1234 ****',
-    status: 'Pending',
-    amount: 150,
-    type: 'expense',
-    tone: 'cyan',
-    icon: 'subscription',
-  },
-  {
-    id: 2,
-    title: 'Mobile Service',
-    date: '25 Jan 2021',
-    category: 'Service',
-    card: '1234 ****',
-    status: 'Completed',
-    amount: 340,
-    type: 'expense',
-    tone: 'blue',
-    icon: 'service',
-  },
-  {
-    id: 3,
-    title: 'Emilly Wilson',
-    date: '25 Jan 2021',
-    category: 'Transfer',
-    card: '1234 ****',
-    status: 'Completed',
-    amount: 780,
-    type: 'income',
-    tone: 'pink',
-    icon: 'user',
-  },
-]
-
-const chartDays: ChartDay[] = [
-  { day: 'Sat', debit: 42, credit: 83 },
-  { day: 'Sun', debit: 30, credit: 66 },
-  { day: 'Mon', debit: 28, credit: 44 },
-  { day: 'Tue', debit: 75, credit: 38 },
-  { day: 'Wed', debit: 47, credit: 76 },
-  { day: 'Thu', debit: 50, credit: 30 },
-  { day: 'Fri', debit: 64, credit: 77 },
-]
+const summaryMetrics = computed(() => data.value?.summary_metrics || [])
+const transactions = computed(() => data.value?.transactions || [])
+const chartDays = computed(() => data.value?.chart_days || [])
+const invoices = computed(() => data.value?.invoices || [])
+const card = computed(() => data.value?.card)
 
 const maxChartValue = 90
 
-const chartBars: ChartBar[] = chartDays.map((day) => ({
-  ...day,
-  debitHeight: Math.max((day.debit / maxChartValue) * 100, 4),
-  creditHeight: Math.max((day.credit / maxChartValue) * 100, 4),
-}))
-
-const invoices: Invoice[] = [
-  { id: 1, name: 'Apple Store', time: '5h ago', amount: 450, tone: 'cyan', icon: 'apple' },
-  { id: 2, name: 'Michael', time: '2 days ago', amount: 160, tone: 'yellow', icon: 'user' },
-  {
-    id: 3,
-    name: 'Playstation',
-    time: '5 days ago',
-    amount: 1085,
-    tone: 'blue',
-    icon: 'playstation',
-  },
-  { id: 4, name: 'William', time: '10 days ago', amount: 90, tone: 'pink', icon: 'user' },
-]
+const chartBars = computed(() => {
+  const days = chartDays.value || []
+  return days.map((day) => ({
+    ...day,
+    debitHeight: Math.max((day.debit / maxChartValue) * 100, 4),
+    creditHeight: Math.max((day.credit / maxChartValue) * 100, 4),
+  }))
+})
 
 function formatNumber(value: number): string {
   return value.toLocaleString('en-US')

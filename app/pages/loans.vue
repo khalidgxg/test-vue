@@ -51,11 +51,11 @@
             <tfoot>
               <tr class="loans-table__total-row">
                 <td class="loans-table__total-label">Total</td>
-                <td class="loans-table__total-value">$125,0000</td>
-                <td class="loans-table__total-value">$750,000</td>
+                <td class="loans-table__total-value">{{ totalLoanMoney }}</td>
+                <td class="loans-table__total-value">{{ totalLeftToRepay }}</td>
                 <td></td>
                 <td></td>
-                <td class="loans-table__total-value">$50,000 / month</td>
+                <td class="loans-table__total-value">{{ totalInstallment }}</td>
                 <td></td>
               </tr>
             </tfoot>
@@ -67,6 +67,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type { ActiveLoanRaw, ActiveLoan, LoanType } from '#shared/types'
+
 definePageMeta({
   layout: 'dashboard',
   title: 'Loans',
@@ -74,131 +77,63 @@ definePageMeta({
 
 useHead({ title: 'Loans - BankDash' })
 
-interface LoanType {
-  id: number
-  type: string
-  amount: string
-  iconBg: string
-  icon: string
-}
+const { data } = await useApi<{
+  loan_types: LoanType[]
+  active_loans: ActiveLoanRaw[]
+}>('/loans')
 
-interface ActiveLoan {
-  id: number
-  slNo: string
-  loanMoney: string
-  leftToRepay: string
-  duration: string
-  interestRate: string
-  installment: string
-  highlighted?: boolean
-}
+const loanTypes = computed(() => {
+  const types = data.value?.loan_types || []
+  const iconMap: Record<string, string> = {
+    personal: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="#396AFF" stroke-width="1.8"/><path d="M5 24C5 20 9 18 14 18C19 18 23 20 23 24" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    corporate: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="7" width="20" height="14" rx="2" stroke="#FFBB38" stroke-width="1.8"/><path d="M4 12H24" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 17H13" stroke="#FFBB38" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    business: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 23V10L14 5L23 10V23H5Z" stroke="#FF4B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="16" width="8" height="7" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
+    equity: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8 20L14 14L20 20" stroke="#16DBCC" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L12 10L16 14L20 8" stroke="#16DBCC" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  }
+  const bgMap: Record<string, string> = {
+    personal: '#E7EDFF',
+    corporate: '#FFF5D9',
+    business: '#FFE0EB',
+    equity: '#DCFAF8',
+  }
+  return types.map(t => ({
+    id: t.id === 'personal' ? 1 : t.id === 'corporate' ? 2 : t.id === 'business' ? 3 : 4,
+    type: t.label,
+    amount: t.value,
+    iconBg: bgMap[t.id] || '#E7EDFF',
+    icon: iconMap[t.id] || '',
+  }))
+})
 
-const loanTypes: LoanType[] = [
-  {
-    id: 1,
-    type: 'Personal Loans',
-    amount: '$50,000',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="#396AFF" stroke-width="1.8"/><path d="M5 24C5 20 9 18 14 18C19 18 23 20 23 24" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 2,
-    type: 'Corporate Loans',
-    amount: '$100,000',
-    iconBg: '#FFF5D9',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="7" width="20" height="14" rx="2" stroke="#FFBB38" stroke-width="1.8"/><path d="M4 12H24" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 17H13" stroke="#FFBB38" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 3,
-    type: 'Business Loans',
-    amount: '$500,000',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 23V10L14 5L23 10V23H5Z" stroke="#FF4B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="16" width="8" height="7" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
-  },
-  {
-    id: 4,
-    type: 'Custom Loans',
-    amount: 'Choose Money',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8 20L14 14L20 20" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L12 10L16 14L20 8" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  },
-]
+const activeLoansRaw = computed(() => data.value?.active_loans || [])
 
-const activeLoans: ActiveLoan[] = [
-  {
-    id: 1,
-    slNo: '01.',
-    loanMoney: '$100,000',
-    leftToRepay: '$40,500',
-    duration: '8 Months',
-    interestRate: '12%',
-    installment: '$2,000 / month',
-    highlighted: true,
-  },
-  {
-    id: 2,
-    slNo: '02.',
-    loanMoney: '$500,000',
-    leftToRepay: '$250,000',
-    duration: '36 Months',
-    interestRate: '10%',
-    installment: '$8,000 / month',
-  },
-  {
-    id: 3,
-    slNo: '03.',
-    loanMoney: '$900,000',
-    leftToRepay: '$40,500',
-    duration: '12 Months',
-    interestRate: '12%',
-    installment: '$5,000 / month',
-  },
-  {
-    id: 4,
-    slNo: '04.',
-    loanMoney: '$50,000',
-    leftToRepay: '$40,500',
-    duration: '25 Months',
-    interestRate: '5%',
-    installment: '$2,000 / month',
-  },
-  {
-    id: 5,
-    slNo: '05.',
-    loanMoney: '$50,000',
-    leftToRepay: '$40,500',
-    duration: '5 Months',
-    interestRate: '16%',
-    installment: '$10,000 / month',
-  },
-  {
-    id: 6,
-    slNo: '06.',
-    loanMoney: '$80,000',
-    leftToRepay: '$25,500',
-    duration: '14 Months',
-    interestRate: '8%',
-    installment: '$2,000 / month',
-  },
-  {
-    id: 7,
-    slNo: '07.',
-    loanMoney: '$12,000',
-    leftToRepay: '$5,500',
-    duration: '9 Months',
-    interestRate: '13%',
-    installment: '$500 / month',
-  },
-  {
-    id: 8,
-    slNo: '08.',
-    loanMoney: '$160,000',
-    leftToRepay: '$100,800',
-    duration: '3 Months',
-    interestRate: '12%',
-    installment: '$900 / month',
-  },
-]
+const activeLoans = computed<ActiveLoan[]>(() => {
+  return activeLoansRaw.value.map((l, index) => ({
+    id: l.id,
+    slNo: `0${index + 1}.`,
+    loanMoney: '$' + l.amount.toLocaleString('en-US'),
+    leftToRepay: '$' + l.leftToPay.toLocaleString('en-US'),
+    duration: l.duration,
+    interestRate: l.interestRate + '%',
+    installment: '$' + l.repayAmount.toLocaleString('en-US') + ' / month',
+    highlighted: index === 0,
+  }))
+})
+
+const totalLoanMoney = computed(() => {
+  const total = activeLoansRaw.value.reduce((acc, l) => acc + l.amount, 0)
+  return '$' + total.toLocaleString('en-US')
+})
+
+const totalLeftToRepay = computed(() => {
+  const total = activeLoansRaw.value.reduce((acc, l) => acc + l.leftToPay, 0)
+  return '$' + total.toLocaleString('en-US')
+})
+
+const totalInstallment = computed(() => {
+  const total = activeLoansRaw.value.reduce((acc, l) => acc + l.repayAmount, 0)
+  return '$' + total.toLocaleString('en-US') + ' / month'
+})
 
 function handleRepay(id: number): void {
   console.log('Repay loan ID:', id)

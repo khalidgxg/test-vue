@@ -226,7 +226,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import type { CreditCard, CardListItem, CardSetting } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -235,60 +236,12 @@ definePageMeta({
 
 useHead({ title: 'Credit Cards - BankDash' })
 
-interface CreditCard {
-  id: number
-  balance: number
-  number: string
-  holder: string
-  expiry: string
-  theme: 'dark' | 'dark2' | 'light'
-}
+const { data } = await useApi<{
+  my_cards: CreditCard[]
+  donut_data: { label: string; value: number; color: string }[]
+}>('/credit-cards')
 
-interface CardListItem {
-  id: number
-  cardType: string
-  bank: string
-  number: string
-  nameOnCard: string
-  iconBg: string
-  iconColor: string
-}
-
-interface CardSetting {
-  id: number
-  title: string
-  subtitle: string
-  iconBg: string
-  icon: string
-}
-
-// ── My Cards Data ─────────────────────────────────────────────────────────────
-const myCards: CreditCard[] = [
-  {
-    id: 1,
-    balance: 5756,
-    number: '3778 **** **** 1234',
-    holder: 'Eddy Cusuma',
-    expiry: '12/22',
-    theme: 'dark',
-  },
-  {
-    id: 2,
-    balance: 5756,
-    number: '3778 **** **** 1234',
-    holder: 'Eddy Cusuma',
-    expiry: '12/22',
-    theme: 'dark2',
-  },
-  {
-    id: 3,
-    balance: 5756,
-    number: '3778 **** **** 1234',
-    holder: 'Eddy Cusuma',
-    expiry: '12/22',
-    theme: 'light',
-  },
-]
+const myCards = computed(() => data.value?.my_cards || [])
 
 function formatNumber(num: number): string {
   return num.toLocaleString('en-US')
@@ -300,81 +253,64 @@ interface DonutSegment {
   color: string
 }
 
-// Segment order matches Figma going clockwise from 12 o'clock:
-// MCP (yellow, small top-left) → DBL (navy, large right) → BRC (orange, bottom) → ABM (teal, left)
-const donutData = [
-  { label: 'MCP Bank', percentage: 15, color: '#FFBB38' },
-  { label: 'DBL Bank', percentage: 35, color: '#343C6A' },
-  { label: 'BRC Bank', percentage: 20, color: '#FC7900' },
-  { label: 'ABM Bank', percentage: 30, color: '#16DBCC' },
-]
+const donutData = computed(() => data.value?.donut_data || [])
 
-// Legend order matches Figma bottom label arrangement
-const donutLegend = [
-  { label: 'DBL Bank', color: '#343C6A' },
-  { label: 'BRC Bank', color: '#FC7900' },
-  { label: 'ABM Bank', color: '#16DBCC' },
-  { label: 'MCP Bank', color: '#FFBB38' },
-]
+const donutLegend = computed(() => {
+  const dataList = donutData.value
+  return [...dataList].sort((a, b) => b.value - a.value)
+})
 
-const donutSegments: DonutSegment[] = []
-let currentAngle = -90
-// outerR=90, innerR=43 gives thick ring (~48% hole) matching Figma
-const outerR = 90
-const innerR = 43
-const gap = 3
+const donutSegments = computed<DonutSegment[]>(() => {
+  const segments: DonutSegment[] = []
+  let currentAngle = -90
+  const outerR = 90
+  const innerR = 43
+  const gap = 3
 
-for (const item of donutData) {
-  const angle = (item.percentage / 100) * 360
-  const start = currentAngle + gap / 2
-  const end = currentAngle + angle - gap / 2
+  for (const item of donutData.value) {
+    const angle = (item.value / 100) * 360
+    const start = currentAngle + gap / 2
+    const end = currentAngle + angle - gap / 2
 
-  const toRad = (deg: number) => (deg * Math.PI) / 180
-  const x1 = outerR * Math.cos(toRad(start))
-  const y1 = outerR * Math.sin(toRad(start))
-  const x2 = outerR * Math.cos(toRad(end))
-  const y2 = outerR * Math.sin(toRad(end))
-  const ix1 = innerR * Math.cos(toRad(end))
-  const iy1 = innerR * Math.sin(toRad(end))
-  const ix2 = innerR * Math.cos(toRad(start))
-  const iy2 = innerR * Math.sin(toRad(start))
-  const large = end - start > 180 ? 1 : 0
+    const toRad = (deg: number) => (deg * Math.PI) / 180
+    const x1 = outerR * Math.cos(toRad(start))
+    const y1 = outerR * Math.sin(toRad(start))
+    const x2 = outerR * Math.cos(toRad(end))
+    const y2 = outerR * Math.sin(toRad(end))
+    const ix1 = innerR * Math.cos(toRad(end))
+    const iy1 = innerR * Math.sin(toRad(end))
+    const ix2 = innerR * Math.cos(toRad(start))
+    const iy2 = innerR * Math.sin(toRad(start))
+    const large = end - start > 180 ? 1 : 0
 
-  const path = `M ${x1} ${y1} A ${outerR} ${outerR} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${innerR} ${innerR} 0 ${large} 0 ${ix2} ${iy2} Z`
-  donutSegments.push({ path, color: item.color })
-  currentAngle += angle
-}
+    const path = `M ${x1} ${y1} A ${outerR} ${outerR} 0 ${large} 1 ${x2} ${y2} L ${ix1} ${iy1} A ${innerR} ${innerR} 0 ${large} 0 ${ix2} ${iy2} Z`
+    segments.push({ path, color: item.color })
+    currentAngle += angle
+  }
+  return segments
+})
 
 // ── Card List ─────────────────────────────────────────────────────────────────
-const cardList: CardListItem[] = [
-  {
-    id: 1,
+const cardList = computed<CardListItem[]>(() => {
+  const cards = myCards.value
+  const bgMap: Record<string, string> = {
+    Visa: '#E7EDFF',
+    Mastercard: '#FFE0EB',
+  }
+  const colorMap: Record<string, string> = {
+    Visa: '#396AFF',
+    Mastercard: '#FF4B4A',
+  }
+  return cards.map(c => ({
+    id: c.id,
     cardType: 'Secondary',
-    bank: 'DBL Bank',
-    number: '**** **** 5600',
-    nameOnCard: 'William',
-    iconBg: '#E7EDFF',
-    iconColor: '#396AFF',
-  },
-  {
-    id: 2,
-    cardType: 'Secondary',
-    bank: 'BRC Bank',
-    number: '**** **** 4300',
-    nameOnCard: 'Michel',
-    iconBg: '#FFE0EB',
-    iconColor: '#FF4B4A',
-  },
-  {
-    id: 3,
-    cardType: 'Secondary',
-    bank: 'ABM Bank',
-    number: '**** **** 7560',
-    nameOnCard: 'Edward',
-    iconBg: '#FFF5D9',
-    iconColor: '#FFBB38',
-  },
-]
+    bank: c.cardType === 'Visa' ? 'DBL Bank' : 'BRC Bank',
+    number: '**** **** ' + c.number.slice(-4),
+    nameOnCard: c.holder.split(' ')[0] || c.holder,
+    iconBg: bgMap[c.cardType] || '#FFF5D9',
+    iconColor: colorMap[c.cardType] || '#FFBB38'
+  }))
+})
 
 // ── Add New Card Form ─────────────────────────────────────────────────────────
 const newCard = ref({ type: '', name: '', number: '', expiry: '' })

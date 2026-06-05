@@ -49,21 +49,20 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
+interface ExpenseRaw {
+  label: string
+  percentage: number
+  color: string
+}
+
 interface Expense {
   category: string
   percentage: number
   color: string
   radius: number
 }
-
-// Order goes clockwise starting from the top (-90deg), matching the Figma layout.
-// Each slice has its own radius to recreate the signature "exploded" pie look.
-const expenses: Expense[] = [
-  { category: 'Entertainment', percentage: 30, color: '#343C6A', radius: 92 },
-  { category: 'Bill Expense', percentage: 15, color: '#FC7900', radius: 112 },
-  { category: 'Others', percentage: 35, color: '#396AFF', radius: 100 },
-  { category: 'Investment', percentage: 20, color: '#FA00FF', radius: 118 },
-]
 
 interface Segment {
   path: string
@@ -74,45 +73,68 @@ interface Segment {
   labelY: number
 }
 
-const segments: Segment[] = []
-const gapAngle = 2 // small white gap between slices
-let currentAngle = -90
+const { data } = await useApi<{
+  expense_statistics: ExpenseRaw[]
+}>('/dashboard', { key: 'dashboard' })
 
-for (const expense of expenses) {
-  const angle = (expense.percentage / 100) * 360
-  const startAngle = currentAngle + gapAngle / 2
-  const endAngle = currentAngle + angle - gapAngle / 2
-  const midAngle = currentAngle + angle / 2
-  const radius = expense.radius
+const expenses = computed<Expense[]>(() => {
+  const raws = data.value?.expense_statistics || []
+  const radii: Record<string, number> = {
+    Entertainment: 92,
+    'Bill Expense': 112,
+    Others: 100,
+    Investment: 118
+  }
+  return raws.map(e => ({
+    category: e.label,
+    percentage: e.percentage,
+    color: e.color,
+    radius: radii[e.label] || 100
+  }))
+})
 
-  const startRad = (startAngle * Math.PI) / 180
-  const endRad = (endAngle * Math.PI) / 180
-  const midRad = (midAngle * Math.PI) / 180
+const segments = computed<Segment[]>(() => {
+  const list: Segment[] = []
+  const gapAngle = 2 // small white gap between slices
+  let currentAngle = -90
 
-  const x1 = radius * Math.cos(startRad)
-  const y1 = radius * Math.sin(startRad)
-  const x2 = radius * Math.cos(endRad)
-  const y2 = radius * Math.sin(endRad)
+  for (const expense of expenses.value) {
+    const angle = (expense.percentage / 100) * 360
+    const startAngle = currentAngle + gapAngle / 2
+    const endAngle = currentAngle + angle - gapAngle / 2
+    const midAngle = currentAngle + angle / 2
+    const radius = expense.radius
 
-  const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
+    const startRad = (startAngle * Math.PI) / 180
+    const endRad = (endAngle * Math.PI) / 180
+    const midRad = (midAngle * Math.PI) / 180
 
-  const path = `M 0 0 L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
+    const x1 = radius * Math.cos(startRad)
+    const y1 = radius * Math.sin(startRad)
+    const x2 = radius * Math.cos(endRad)
+    const y2 = radius * Math.sin(endRad)
 
-  // Label position (around 62% of this slice's radius from center)
-  const labelRadius = radius * 0.62
-  const labelX = labelRadius * Math.cos(midRad)
-  const labelY = labelRadius * Math.sin(midRad)
+    const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0
 
-  segments.push({
-    path,
-    color: expense.color,
-    percentage: expense.percentage,
-    name: expense.category,
-    labelX,
-    labelY,
-  })
-  currentAngle += angle
-}
+    const path = `M 0 0 L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
+
+    // Label position (around 62% of this slice's radius from center)
+    const labelRadius = radius * 0.62
+    const labelX = labelRadius * Math.cos(midRad)
+    const labelY = labelRadius * Math.sin(midRad)
+
+    list.push({
+      path,
+      color: expense.color,
+      percentage: expense.percentage,
+      name: expense.category,
+      labelX,
+      labelY,
+    })
+    currentAngle += angle
+  }
+  return list
+})
 </script>
 
 <style scoped>

@@ -35,11 +35,11 @@ d="M24 10L27.5 20H38L29.5 26L33 36L24 30L15 36L18.5 26L10 20H20.5L24 10Z"
     <div class="points-summary">
       <div class="points-summary__main">
         <span class="points-summary__label">Total Reward Points</span>
-        <span class="points-summary__value">12,450 pts</span>
+        <span class="points-summary__value">{{ totalPoints.toLocaleString('en-US') }} pts</span>
         <div class="points-bar">
-          <div class="points-bar__fill" style="width: 62%"></div>
+          <div class="points-bar__fill" :style="{ width: pointsProgressPct + '%' }"></div>
         </div>
-        <span class="points-summary__sub">6,230 pts until Platinum tier</span>
+        <span class="points-summary__sub">{{ untilPlatinum.toLocaleString('en-US') }} pts until Platinum tier</span>
       </div>
       <div class="points-summary__stats">
         <div v-for="stat in pointStats" :key="stat.label" class="points-stat">
@@ -52,6 +52,9 @@ d="M24 10L27.5 20H38L29.5 26L33 36L24 30L15 36L18.5 26L10 20H20.5L24 10Z"
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type { Privilege, PrivilegeRaw, PointStatRaw } from '#shared/types'
+
 definePageMeta({
   layout: 'dashboard',
   title: 'My Privileges',
@@ -59,78 +62,67 @@ definePageMeta({
 
 useHead({ title: 'My Privileges - BankDash' })
 
-interface Privilege {
-  id: number
-  title: string
-  description: string
-  iconBg: string
-  icon: string
-  status: 'active' | 'locked' | 'new'
-  statusLabel: string
-}
+const { data } = await useApi<{
+  privileges: PrivilegeRaw[]
+  point_stats: PointStatRaw[]
+}>('/my-privileges')
 
-const privileges: Privilege[] = [
-  {
-    id: 1,
-    title: 'Cashback Rewards',
-    description: 'Earn up to 5% cashback on all purchases made with your BankDash card.',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 16" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    status: 'active',
-    statusLabel: 'Active',
-  },
-  {
-    id: 2,
-    title: 'Travel Insurance',
-    description: 'Complimentary travel insurance coverage up to $500,000 per trip.',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 22L14 5L23 22" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 16H20" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    status: 'active',
-    statusLabel: 'Active',
-  },
-  {
-    id: 3,
-    title: 'Lounge Access',
-    description: 'Free access to over 1,000 airport lounges worldwide with Priority Pass.',
-    iconBg: '#FFF5D9',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="8" width="20" height="14" rx="3" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 8V6C9 5 10 4 14 4C18 4 19 5 19 6V8" stroke="#FFBB38" stroke-width="1.8"/></svg>',
-    status: 'active',
-    statusLabel: 'Active',
-  },
-  {
-    id: 4,
-    title: 'Platinum Upgrade',
-    description: 'Unlock Platinum tier with 18,680 more points for exclusive premium benefits.',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M14 5L17 11H23L18.5 15L20.5 21L14 17.5L7.5 21L9.5 15L5 11H11L14 5Z" stroke="#FF4B4A" stroke-width="1.8" stroke-linejoin="round"/></svg>',
-    status: 'locked',
-    statusLabel: 'Locked',
-  },
-  {
-    id: 5,
-    title: 'Zero FX Fees',
-    description: 'No foreign transaction fees on international purchases or ATM withdrawals.',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#16DBCC" stroke-width="1.8"/><path d="M10 14H18M14 10V18" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    status: 'new',
-    statusLabel: 'New',
-  },
-  {
-    id: 6,
-    title: 'Concierge Service',
-    description: '24/7 dedicated concierge service for bookings, reservations, and more.',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="4" stroke="#396AFF" stroke-width="1.8"/><path d="M6 23C6 19.5 9.5 17 14 17C18.5 17 22 19.5 22 23" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    status: 'active',
-    statusLabel: 'Active',
-  },
-]
+const privileges = computed<Privilege[]>(() => {
+  const raws = data.value?.privileges || []
+  const iconMap: Record<string, string> = {
+    cashback: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 16" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
+    lounge: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="8" width="20" height="14" rx="3" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 8V6C9 5 10 4 14 4C18 4 19 5 19 6V8" stroke="#FFBB38" stroke-width="1.8"/></svg>',
+    concierge: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="4" stroke="#396AFF" stroke-width="1.8"/><path d="M6 23C6 19.5 9.5 17 14 17C18.5 17 22 19.5 22 23" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  }
+  const defaultStatus: Record<number, 'active' | 'locked' | 'new'> = {
+    1: 'active',
+    2: 'active',
+    3: 'active',
+  }
+  const defaultStatusLabel: Record<number, string> = {
+    1: 'Active',
+    2: 'Active',
+    3: 'Active',
+  }
+  return raws.map(p => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    iconBg: p.iconBg,
+    icon: iconMap[p.icon] || '',
+    status: defaultStatus[p.id] || 'active',
+    statusLabel: defaultStatusLabel[p.id] || 'Active'
+  }))
+})
 
-const pointStats = [
-  { value: '12,450', label: 'Total Points' },
-  { value: '3,200', label: 'This Month' },
-  { value: '6,230', label: 'Until Platinum' },
-]
+const pointStats = computed(() => {
+  const stats = data.value?.point_stats || []
+  const labels: Record<string, string> = {
+    Jan: 'Total Points',
+    Feb: 'This Month',
+    Mar: 'Until Platinum',
+  }
+  return stats.map(s => ({
+    value: s.points.toLocaleString('en-US'),
+    label: labels[s.month] || s.month,
+  }))
+})
+
+const totalPoints = computed(() => {
+  const stats = data.value?.point_stats || []
+  return stats.find(s => s.month === 'Jan')?.points || 12450
+})
+
+const untilPlatinum = computed(() => {
+  const stats = data.value?.point_stats || []
+  return stats.find(s => s.month === 'Mar')?.points || 6230
+})
+
+const pointsProgressPct = computed(() => {
+  const total = totalPoints.value
+  const target = total + untilPlatinum.value
+  return target > 0 ? (total / target) * 100 : 0
+})
 </script>
 
 <style scoped>

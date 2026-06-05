@@ -28,45 +28,32 @@
 </template>
 
 <script setup lang="ts">
-interface Transaction {
-  id: number
-  name: string
-  amount: number
-  date: string
-  type: 'income' | 'expense'
-  iconColor: 'yellow' | 'blue' | 'cyan'
-  icon: string
-}
+import { computed } from 'vue'
+import type { Transaction, TransactionRaw } from '#shared/types'
 
-const transactions: Transaction[] = [
-  {
-    id: 1,
-    name: 'Deposit from my Card',
-    amount: 850,
-    date: '28 January 2021',
-    type: 'expense',
-    iconColor: 'yellow',
-    icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/></svg>',
-  },
-  {
-    id: 2,
-    name: 'Deposit Paypal',
-    amount: 2500,
-    date: '25 January 2021',
-    type: 'income',
-    iconColor: 'blue',
-    icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 16H4C3.44772 16 3 15.5523 3 15V5C3 4.44772 3.44772 4 4 4H12C13.6569 4 15 5.34315 15 7V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 12H16C16.5523 12 17 12.4477 17 13V15C17 15.5523 16.5523 16 16 16H8C7.44772 16 7 15.5523 7 15V13C7 12.4477 7.44772 12 8 12Z" stroke="currentColor" stroke-width="1.5"/></svg>',
-  },
-  {
-    id: 3,
-    name: 'Jemi Wilson',
-    amount: 5400,
-    date: '21 January 2021',
-    type: 'income',
-    iconColor: 'cyan',
-    icon: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 7V13M7 10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-]
+const { data } = await useApi<{
+  recent_transactions: TransactionRaw[]
+}>('/dashboard', { key: 'dashboard' })
+
+const transactions = computed<Transaction[]>(() => {
+  const raws = data.value?.recent_transactions || []
+  
+  const iconMap: Record<string, string> = {
+    card: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/></svg>',
+    paypal: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 16H4C3.44772 16 3 15.5523 3 15V5C3 4.44772 3.44772 4 4 4H12C13.6569 4 15 5.34315 15 7V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 12H16C16.5523 12 17 12.4477 17 13V15C17 15.5523 16.5523 16 16 16H8C7.44772 16 7 15.5523 7 15V13C7 12.4477 7.44772 12 8 12Z" stroke="currentColor" stroke-width="1.5"/></svg>',
+    user: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 7V13M7 10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+  }
+  
+  return raws.map(t => ({
+    id: t.id,
+    name: t.title,
+    amount: Math.abs(t.amount),
+    date: t.date,
+    type: t.amount < 0 ? 'expense' : 'income',
+    iconColor: t.tone === 'teal' ? 'cyan' : t.tone,
+    icon: iconMap[t.type] || ''
+  }))
+})
 
 function formatNumber(num: number): string {
   return num.toLocaleString('en-US')

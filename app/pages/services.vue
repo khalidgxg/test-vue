@@ -52,6 +52,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import type { FeaturedService, BankService } from '#shared/types'
+
 definePageMeta({
   layout: 'dashboard',
   title: 'Services',
@@ -59,90 +62,13 @@ definePageMeta({
 
 useHead({ title: 'Services - BankDash' })
 
-interface FeaturedService {
-  id: number
-  title: string
-  subtitle: string
-  iconBg: string
-  icon: string
-}
+const { data } = await useApi<{
+  featured_services: FeaturedService[]
+  bank_services: BankService[]
+}>('/services')
 
-interface BankService {
-  id: number
-  name: string
-  description: string
-  iconBg: string
-  icon: string
-}
-
-const featuredServices: FeaturedService[] = [
-  {
-    id: 1,
-    title: 'Life Insurance',
-    subtitle: 'Unlimited protection',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M15 4C10 4 6 8 6 13C6 19 15 27 15 27C15 27 24 19 24 13C24 8 20 4 15 4Z" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 10V16M12 13H18" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 2,
-    title: 'Shopping',
-    subtitle: 'Buy. Think. Grow.',
-    iconBg: '#FFF5D9',
-    icon: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M6 7H8L10 19H22L24 11H10" stroke="#FFBB38" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="22" r="1.5" fill="#FFBB38"/><circle cx="20" cy="22" r="1.5" fill="#FFBB38"/></svg>',
-  },
-  {
-    id: 3,
-    title: 'Safety',
-    subtitle: 'We are your allies',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="30" height="30" viewBox="0 0 30 30" fill="none"><path d="M15 4L6 8V15C6 20 10 24.5 15 26C20 24.5 24 20 24 15V8L15 4Z" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M11 15L13.5 17.5L19 12" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-  },
-]
-
-const bankServices: BankService[] = [
-  {
-    id: 1,
-    name: 'Business loans',
-    description: 'It is a long established',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="4" stroke="#FF4B4A" stroke-width="1.5"/><path d="M4 19C4 16 7 14 11 14C15 14 18 16 18 19" stroke="#FF4B4A" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 2,
-    name: 'Checking accounts',
-    description: 'It is a long established',
-    iconBg: '#FFF5D9',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="3" y="5" width="16" height="12" rx="2" stroke="#FFBB38" stroke-width="1.5"/><path d="M3 9H19" stroke="#FFBB38" stroke-width="1.5"/><path d="M7 13H10" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 3,
-    name: 'Savings accounts',
-    description: 'It is a long established',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M4 18V8L11 4L18 8V18H4Z" stroke="#FF4B4A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="8" y="13" width="6" height="5" stroke="#FF4B4A" stroke-width="1.5"/></svg>',
-  },
-  {
-    id: 4,
-    name: 'Debit and credit cards',
-    description: 'It is a long established',
-    iconBg: '#E7EDFF',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="7" stroke="#396AFF" stroke-width="1.5"/><path d="M11 8V14M8 11H14" stroke="#396AFF" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 5,
-    name: 'Life Insurance',
-    description: 'It is a long established',
-    iconBg: '#DCFAF8',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 3C7 3 4 6 4 10C4 14 11 20 11 20C11 20 18 14 18 10C18 6 15 3 11 3Z" stroke="#16DBCC" stroke-width="1.5" stroke-linecap="round"/><path d="M11 7V13M8 10H14" stroke="#16DBCC" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-  {
-    id: 6,
-    name: 'Business loans',
-    description: 'It is a long established',
-    iconBg: '#FFE0EB',
-    icon: '<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><circle cx="11" cy="8" r="4" stroke="#FF4B4A" stroke-width="1.5"/><path d="M4 19C4 16 7 14 11 14C15 14 18 16 18 19" stroke="#FF4B4A" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  },
-]
+const featuredServices = computed(() => data.value?.featured_services || [])
+const bankServices = computed(() => data.value?.bank_services || [])
 </script>
 
 <style scoped>

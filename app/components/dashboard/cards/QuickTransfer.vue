@@ -49,25 +49,20 @@
 </template>
 
 <script setup lang="ts">
-interface Contact {
-  id: number
-  name: string
-  role: string
-  avatar: string
-  selected?: boolean
-}
+import { ref, computed } from 'vue'
+import type { ContactRaw, Contact } from '#shared/types'
 
-const contacts: Contact[] = [
-  {
-    id: 1,
-    name: 'Livia Bator',
-    role: 'CEO',
-    avatar: 'https://i.pravatar.cc/80?img=5',
-    selected: true,
-  },
-  { id: 2, name: 'Randy Press', role: 'Director', avatar: 'https://i.pravatar.cc/80?img=8' },
-  { id: 3, name: 'Workman', role: 'Designer', avatar: 'https://i.pravatar.cc/80?img=11' },
-]
+const { data } = await useApi<{
+  quick_transfer: ContactRaw[]
+}>('/dashboard', { key: 'dashboard' })
+
+const contacts = computed<Contact[]>(() => {
+  const raws = data.value?.quick_transfer || []
+  return raws.slice(0, 3).map((c, idx) => ({
+    ...c,
+    selected: idx === 0
+  }))
+})
 
 const amount = ref('')
 

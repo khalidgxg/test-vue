@@ -130,11 +130,35 @@
         </div>
       </section>
     </div>
+
+    <!-- Toast Notification (Premium UI Feedback) -->
+    <Transition name="toast">
+      <div v-if="toast.show" class="toast-notification">
+        <div class="toast-content">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="toast-icon"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+          <span>{{ toast.message }}</span>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { UserProfile, UserPreferences } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -146,28 +170,66 @@ useHead({ title: 'Settings - BankDash' })
 const tabs = ['Edit Profile', 'Preference', 'Security']
 const activeTab = ref('Edit Profile')
 
-const form = ref({
-  name: 'Charlene Reed',
-  username: 'Charlene Reed',
-  email: 'charlenereed@gmail.com',
+const form = ref<UserProfile>({
+  name: '',
+  username: '',
+  email: '',
   password: '',
-  dob: '25 January 1990',
-  presentAddress: 'San Jose, California, USA',
-  permanentAddress: 'San Jose, California, USA',
-  city: 'San Jose',
-  postal: '45962',
-  country: 'USA',
+  dob: '',
+  presentAddress: '',
+  permanentAddress: '',
+  city: '',
+  postal: '',
+  country: '',
 })
 
-const prefs = ref({
-  twoFactor: true,
+const prefs = ref<UserPreferences>({
+  twoFactor: false,
   newsletter: false,
-  pushNotif: true,
+  pushNotif: false,
   smsNotif: false,
 })
 
-function handleSave(): void {
-  console.log('Saving profile:', form.value)
+// Load profile settings from API
+const { data } = await useApi<{
+  profile: UserProfile
+  preferences: UserPreferences
+}>('/settings')
+
+if (data.value) {
+  form.value = { ...data.value.profile, password: '' }
+  prefs.value = { ...data.value.preferences }
+}
+
+// Toast state for premium notification
+const toast = ref({
+  show: false,
+  message: '',
+})
+
+let toastTimeout: NodeJS.Timeout
+
+async function handleSave() {
+  if (toastTimeout) clearTimeout(toastTimeout)
+
+  const { error } = await useApi('/settings', {
+    method: 'POST',
+    body: {
+      profile: form.value,
+      preferences: prefs.value,
+    }
+  })
+
+  if (error.value) {
+    toast.value.message = 'Error updating profile settings.'
+  } else {
+    toast.value.message = 'Profile settings updated successfully!'
+  }
+  toast.value.show = true
+
+  toastTimeout = setTimeout(() => {
+    toast.value.show = false
+  }, 3000)
 }
 </script>
 
@@ -432,5 +494,45 @@ function handleSave(): void {
   .settings-form__row {
     grid-template-columns: 1fr;
   }
+}
+
+/* Toast Animation and Styling */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background-color: #1a1b2f;
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.toast-icon {
+  color: var(--color-success);
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>

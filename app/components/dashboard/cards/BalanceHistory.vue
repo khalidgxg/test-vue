@@ -68,20 +68,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface DataPoint {
   month: string
   balance: number
 }
 
-const data: DataPoint[] = [
-  { month: 'Jul', balance: 120 },
-  { month: 'Aug', balance: 350 },
-  { month: 'Sep', balance: 250 },
-  { month: 'Oct', balance: 480 },
-  { month: 'Nov', balance: 150 },
-  { month: 'Dec', balance: 620 },
-  { month: 'Jan', balance: 600 },
-]
+interface Point {
+  x: number
+  y: number
+}
+
+const { data: rawResponse } = await useApi<{
+  balance_history: DataPoint[]
+}>('/dashboard', { key: 'dashboard' })
+
+const apiData = computed(() => rawResponse.value?.balance_history || [])
 
 const svgWidth = 520
 const svgHeight = 230
@@ -90,45 +93,50 @@ const chartTop = 15
 const chartAreaHeight = 175
 const maxValue = 800
 
-const monthLabels = data.map((d) => d.month)
-const monthSpacing = (svgWidth - gridLeft - 20) / (data.length - 1)
+const monthLabels = computed(() => apiData.value.map((d) => d.month))
+const monthSpacing = computed(() => (svgWidth - gridLeft - 20) / Math.max(apiData.value.length - 1, 1))
 
 const yLabels = [0, 200, 400, 600, 800].reverse().map((value) => ({
   value,
   y: chartTop + chartAreaHeight - (value / maxValue) * chartAreaHeight,
 }))
 
-interface Point {
-  x: number
-  y: number
-}
-
-const points: Point[] = data.map((item, index) => ({
-  x: gridLeft + index * monthSpacing,
-  y: chartTop + chartAreaHeight - (item.balance / maxValue) * chartAreaHeight,
-}))
+const points = computed<Point[]>(() => {
+  const list = apiData.value
+  const spacing = monthSpacing.value
+  return list.map((item, index) => ({
+    x: gridLeft + index * spacing,
+    y: chartTop + chartAreaHeight - (item.balance / maxValue) * chartAreaHeight,
+  }))
+})
 
 // Create smooth bezier curve
-const linePath = points
-  .map((point, index) => {
-    if (index === 0) {
-      return `M ${point.x} ${point.y}`
-    }
-    const prevPoint = points[index - 1]
-    if (!prevPoint) return ''
-    const tension = 0.35
-    const cpx1 = prevPoint.x + (point.x - prevPoint.x) * tension
-    const cpx2 = point.x - (point.x - prevPoint.x) * tension
-    return `C ${cpx1} ${prevPoint.y} ${cpx2} ${point.y} ${point.x} ${point.y}`
-  })
-  .join(' ')
+const linePath = computed(() => {
+  const pts = points.value
+  return pts
+    .map((point, index) => {
+      if (index === 0) {
+        return `M ${point.x} ${point.y}`
+      }
+      const prevPoint = pts[index - 1]
+      if (!prevPoint) return ''
+      const tension = 0.35
+      const cpx1 = prevPoint.x + (point.x - prevPoint.x) * tension
+      const cpx2 = point.x - (point.x - prevPoint.x) * tension
+      return `C ${cpx1} ${prevPoint.y} ${cpx2} ${point.y} ${point.x} ${point.y}`
+    })
+    .join(' ')
+})
 
-const lastPoint = points[points.length - 1]
-const firstPoint = points[0]
-const areaPath =
-  lastPoint && firstPoint
-    ? `${linePath} L ${lastPoint.x} ${chartTop + chartAreaHeight} L ${firstPoint.x} ${chartTop + chartAreaHeight} Z`
+const areaPath = computed(() => {
+  const pts = points.value
+  if (pts.length === 0) return ''
+  const lastPoint = pts[pts.length - 1]
+  const firstPoint = pts[0]
+  return lastPoint && firstPoint
+    ? `${linePath.value} L ${lastPoint.x} ${chartTop + chartAreaHeight} L ${firstPoint.x} ${chartTop + chartAreaHeight} Z`
     : ''
+})
 </script>
 
 <style scoped>
