@@ -156,9 +156,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
-import type { UserProfile, UserPreferences } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -170,7 +169,7 @@ useHead({ title: 'Settings - BankDash' })
 const tabs = ['Edit Profile', 'Preference', 'Security']
 const activeTab = ref('Edit Profile')
 
-const form = ref<UserProfile>({
+const form = ref({
   name: '',
   username: '',
   email: '',
@@ -183,7 +182,7 @@ const form = ref<UserProfile>({
   country: '',
 })
 
-const prefs = ref<UserPreferences>({
+const prefs = ref({
   twoFactor: false,
   newsletter: false,
   pushNotif: false,
@@ -191,10 +190,7 @@ const prefs = ref<UserPreferences>({
 })
 
 // Load profile settings from API
-const { data } = await useApi<{
-  profile: UserProfile
-  preferences: UserPreferences
-}>('/settings')
+const { data } = await useApi('/settings')
 
 if (data.value) {
   form.value = { ...data.value.profile, password: '' }
@@ -207,7 +203,7 @@ const toast = ref({
   message: '',
 })
 
-let toastTimeout: NodeJS.Timeout
+let toastTimeout
 
 async function handleSave() {
   if (toastTimeout) clearTimeout(toastTimeout)

@@ -22,13 +22,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { ExpenseBar } from '#shared/types'
 
-const { data } = await useApi<{
-  my_expense: ExpenseBar[]
-}>('/transactions', { key: 'transactions' })
+const { data } = await useApi('/transactions', { key: 'transactions' })
 
 const expenseData = computed(() => data.value?.my_expense || [])
 </script>

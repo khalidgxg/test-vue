@@ -51,9 +51,8 @@ d="M24 10L27.5 20H38L29.5 26L33 36L24 30L15 36L18.5 26L10 20H20.5L24 10Z"
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { Privilege, PrivilegeRaw, PointStatRaw } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -62,24 +61,21 @@ definePageMeta({
 
 useHead({ title: 'My Privileges - BankDash' })
 
-const { data } = await useApi<{
-  privileges: PrivilegeRaw[]
-  point_stats: PointStatRaw[]
-}>('/my-privileges')
+const { data } = await useApi('/my-privileges')
 
-const privileges = computed<Privilege[]>(() => {
+const privileges = computed(() => {
   const raws = data.value?.privileges || []
-  const iconMap: Record<string, string> = {
+  const iconMap = {
     cashback: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="9" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 16" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
     lounge: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="8" width="20" height="14" rx="3" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 8V6C9 5 10 4 14 4C18 4 19 5 19 6V8" stroke="#FFBB38" stroke-width="1.8"/></svg>',
     concierge: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="4" stroke="#396AFF" stroke-width="1.8"/><path d="M6 23C6 19.5 9.5 17 14 17C18.5 17 22 19.5 22 23" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
   }
-  const defaultStatus: Record<number, 'active' | 'locked' | 'new'> = {
+  const defaultStatus = {
     1: 'active',
     2: 'active',
     3: 'active',
   }
-  const defaultStatusLabel: Record<number, string> = {
+  const defaultStatusLabel = {
     1: 'Active',
     2: 'Active',
     3: 'Active',
@@ -97,7 +93,7 @@ const privileges = computed<Privilege[]>(() => {
 
 const pointStats = computed(() => {
   const stats = data.value?.point_stats || []
-  const labels: Record<string, string> = {
+  const labels = {
     Jan: 'Total Points',
     Feb: 'This Month',
     Mar: 'Until Platinum',

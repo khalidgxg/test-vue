@@ -201,16 +201,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type {
-  SummaryStatRaw,
-  InvestmentRaw,
-  StockRaw,
-  SummaryStat,
-  Investment,
-  Stock
-} from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -219,22 +211,16 @@ definePageMeta({
 
 useHead({ title: 'Investments - BankDash' })
 
-const { data } = await useApi<{
-  summary_stats: SummaryStatRaw[]
-  yearly_data: { year: number; value: number }[]
-  monthly_data: { month: string; value: number }[]
-  my_investments: InvestmentRaw[]
-  trending_stocks: StockRaw[]
-}>('/investments')
+const { data } = await useApi('/investments')
 
-const summaryStats = computed<SummaryStat[]>(() => {
+const summaryStats = computed(() => {
   const stats = data.value?.summary_stats || []
-  const bgMap: Record<string, string> = {
+  const bgMap = {
     invested: '#DCFAF8',
     number: '#FFE0EB',
     rate: '#E7EDFF'
   }
-  const iconMap: Record<string, string> = {
+  const iconMap = {
     invested: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="8" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 17" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
     number: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="11" r="5" stroke="#FF4B4A" stroke-width="1.8"/><circle cx="19" cy="19" r="5" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
     rate: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14C5 14 8 8 14 8C20 8 23 14 23 14C23 14 20 20 14 20C8 20 5 14 5 14Z" stroke="#396AFF" stroke-width="1.8"/><circle cx="14" cy="14" r="3" stroke="#396AFF" stroke-width="1.8"/></svg>'
@@ -294,7 +280,7 @@ const yearlyLinePath = computed(() => {
   return pts
     .map((p, i) => {
       if (i === 0) return `M ${p.x} ${p.y}`
-      const prev = pts[i - 1]!
+      const prev = pts[i - 1]
       const t = 0.35
       return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
     })
@@ -305,8 +291,8 @@ const yearlyAreaPath = computed(() => {
   const pts = yearlyPoints.value
   const chart = yearlyChart.value
   if (pts.length === 0) return ''
-  const first = pts[0]!
-  const last = pts[pts.length - 1]!
+  const first = pts[0]
+  const last = pts[pts.length - 1]
   return `${yearlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
 })
 
@@ -356,7 +342,7 @@ const monthlyLinePath = computed(() => {
   return pts
     .map((p, i) => {
       if (i === 0) return `M ${p.x} ${p.y}`
-      const prev = pts[i - 1]!
+      const prev = pts[i - 1]
       const t = 0.4
       return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
     })
@@ -367,19 +353,19 @@ const monthlyAreaPath = computed(() => {
   const pts = monthlyPoints.value
   const chart = monthlyChart.value
   if (pts.length === 0) return ''
-  const first = pts[0]!
-  const last = pts[pts.length - 1]!
+  const first = pts[0]
+  const last = pts[pts.length - 1]
   return `${monthlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
 })
 
-const myInvestments = computed<Investment[]>(() => {
+const myInvestments = computed(() => {
   const raw = data.value?.my_investments || []
-  const bgMap: Record<string, string> = {
+  const bgMap = {
     apple: '#FFE0EB',
     google: '#E7EDFF',
     tesla: '#FFF5D9',
   }
-  const iconMap: Record<string, string> = {
+  const iconMap = {
     apple: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C9 4 7 6.5 7 9C7 13 10 17 12 20C14 17 17 13 17 9C17 6.5 15 4 12 4Z" stroke="#FF4B4A" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#FF4B4A"/></svg>',
     google: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="7" y="3" width="10" height="18" rx="2" stroke="#396AFF" stroke-width="1.5"/><circle cx="12" cy="18" r="1" fill="#396AFF"/></svg>',
     tesla: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 10H19M7 10C7 7 9 4 12 4C15 4 17 7 17 10" stroke="#FFBB38" stroke-width="1.5"/><path d="M12 10V20" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/><path d="M9 20H15" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/></svg>',
@@ -396,7 +382,7 @@ const myInvestments = computed<Investment[]>(() => {
   }))
 })
 
-const trendingStocks = computed<Stock[]>(() => {
+const trendingStocks = computed(() => {
   const raw = data.value?.trending_stocks || []
   return raw.map((stock, index) => ({
     id: stock.id,

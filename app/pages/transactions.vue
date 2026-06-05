@@ -173,9 +173,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from 'vue'
-import type { PageTransaction } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -194,9 +193,7 @@ const tabs = [
 
 const activeTab = ref('all')
 
-const { data } = await useApi<{
-  transactions: PageTransaction[]
-}>('/transactions', { key: 'transactions' })
+const { data } = await useApi('/transactions', { key: 'transactions' })
 
 const transactions = computed(() => data.value?.transactions || [])
 
@@ -207,7 +204,7 @@ const filteredTransactions = computed(() => {
   return transactions.value
 })
 
-function formatNumber(num: number): string {
+function formatNumber(num) {
   return num.toLocaleString('en-US')
 }
 
@@ -217,9 +214,9 @@ const toast = ref({
   message: '',
 })
 
-let toastTimeout: NodeJS.Timeout
+let toastTimeout
 
-function handleDownload(txId: string) {
+function handleDownload(txId) {
   // Clear any existing timeout
   if (toastTimeout) clearTimeout(toastTimeout)
 

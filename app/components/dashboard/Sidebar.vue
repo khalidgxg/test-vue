@@ -36,14 +36,8 @@
   </aside>
 </template>
 
-<script setup lang="ts">
-interface NavItem {
-  to: string
-  label: string
-  icon: string
-}
-
-const navItems: NavItem[] = [
+<script setup>
+const navItems = [
   {
     to: '/',
     label: 'Dashboard',

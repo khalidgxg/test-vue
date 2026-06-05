@@ -48,15 +48,12 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from 'vue'
-import type { ContactRaw, Contact } from '#shared/types'
 
-const { data } = await useApi<{
-  quick_transfer: ContactRaw[]
-}>('/dashboard', { key: 'dashboard' })
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
-const contacts = computed<Contact[]>(() => {
+const contacts = computed(() => {
   const raws = data.value?.quick_transfer || []
   return raws.slice(0, 3).map((c, idx) => ({
     ...c,

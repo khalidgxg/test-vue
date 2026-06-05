@@ -1,4 +1,4 @@
-export function useApi<T>(url: string, options: Record<string, unknown> = {}) {
+export function useApi(url, options = {}) {
   const config = useRuntimeConfig()
   const apiBase = config.public.apiBase || 'http://localhost:8000/api'
   
@@ -6,11 +6,11 @@ export function useApi<T>(url: string, options: Record<string, unknown> = {}) {
     ? url
     : `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`
 
-  return useFetch<T>(normalizedUrl, {
+  return useFetch(normalizedUrl, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...((options.headers as Record<string, string>) || {}),
+      ...(options.headers || {}),
     },
   })
 }

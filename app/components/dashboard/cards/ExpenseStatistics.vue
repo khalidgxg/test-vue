@@ -48,38 +48,14 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
-interface ExpenseRaw {
-  label: string
-  percentage: number
-  color: string
-}
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
-interface Expense {
-  category: string
-  percentage: number
-  color: string
-  radius: number
-}
-
-interface Segment {
-  path: string
-  color: string
-  percentage: number
-  name: string
-  labelX: number
-  labelY: number
-}
-
-const { data } = await useApi<{
-  expense_statistics: ExpenseRaw[]
-}>('/dashboard', { key: 'dashboard' })
-
-const expenses = computed<Expense[]>(() => {
+const expenses = computed(() => {
   const raws = data.value?.expense_statistics || []
-  const radii: Record<string, number> = {
+  const radii = {
     Entertainment: 92,
     'Bill Expense': 112,
     Others: 100,
@@ -93,8 +69,8 @@ const expenses = computed<Expense[]>(() => {
   }))
 })
 
-const segments = computed<Segment[]>(() => {
-  const list: Segment[] = []
+const segments = computed(() => {
+  const list = []
   const gapAngle = 2 // small white gap between slices
   let currentAngle = -90
 

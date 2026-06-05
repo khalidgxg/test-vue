@@ -66,9 +66,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { ActiveLoanRaw, ActiveLoan, LoanType } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -77,20 +76,17 @@ definePageMeta({
 
 useHead({ title: 'Loans - BankDash' })
 
-const { data } = await useApi<{
-  loan_types: LoanType[]
-  active_loans: ActiveLoanRaw[]
-}>('/loans')
+const { data } = await useApi('/loans')
 
 const loanTypes = computed(() => {
   const types = data.value?.loan_types || []
-  const iconMap: Record<string, string> = {
+  const iconMap = {
     personal: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="#396AFF" stroke-width="1.8"/><path d="M5 24C5 20 9 18 14 18C19 18 23 20 23 24" stroke="#396AFF" stroke-width="1.8" stroke-linecap="round"/></svg>',
     corporate: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="4" y="7" width="20" height="14" rx="2" stroke="#FFBB38" stroke-width="1.8"/><path d="M4 12H24" stroke="#FFBB38" stroke-width="1.8"/><path d="M9 17H13" stroke="#FFBB38" stroke-width="1.8" stroke-linecap="round"/></svg>',
     business: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 23V10L14 5L23 10V23H5Z" stroke="#FF4B4A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="10" y="16" width="8" height="7" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
     equity: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M8 20L14 14L20 20" stroke="#16DBCC" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14L12 10L16 14L20 8" stroke="#16DBCC" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   }
-  const bgMap: Record<string, string> = {
+  const bgMap = {
     personal: '#E7EDFF',
     corporate: '#FFF5D9',
     business: '#FFE0EB',
@@ -107,7 +103,7 @@ const loanTypes = computed(() => {
 
 const activeLoansRaw = computed(() => data.value?.active_loans || [])
 
-const activeLoans = computed<ActiveLoan[]>(() => {
+const activeLoans = computed(() => {
   return activeLoansRaw.value.map((l, index) => ({
     id: l.id,
     slNo: `0${index + 1}.`,
@@ -135,7 +131,7 @@ const totalInstallment = computed(() => {
   return '$' + total.toLocaleString('en-US') + ' / month'
 })
 
-function handleRepay(id: number): void {
+function handleRepay(id) {
   console.log('Repay loan ID:', id)
 }
 </script>

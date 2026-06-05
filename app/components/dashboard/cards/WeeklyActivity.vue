@@ -78,20 +78,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
-interface ChartDataItem {
-  day: string
-  deposit: number
-  withdraw: number
-  depositHeight: number
-  withdrawHeight: number
-}
-
+<script setup>
 import { computed } from 'vue'
 
-const { data } = await useApi<{
-  weekly_activity: { day: string; withdraw: number; deposit: number }[]
-}>('/dashboard', { key: 'dashboard' })
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
 const rawData = computed(() => data.value?.weekly_activity || [])
 
@@ -112,7 +102,7 @@ const yLabels = [0, 100, 200, 300, 400, 500].reverse().map((value) => ({
   y: chartTop + chartAreaHeight - (value / maxValue) * chartAreaHeight,
 }))
 
-const chartData = computed<ChartDataItem[]>(() => {
+const chartData = computed(() => {
   return rawData.value.map((item) => ({
     day: item.day,
     deposit: item.deposit,

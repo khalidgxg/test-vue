@@ -1,8 +1,8 @@
-export function formatCurrency(value: number, locale = 'ar-SA', currency = 'SAR'): string {
+export function formatCurrency(value, locale = 'ar-SA', currency = 'SAR') {
   return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(value)
 }
 
-export function formatDate(value: string | Date, locale = 'ar-SA'): string {
+export function formatDate(value, locale = 'ar-SA') {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'long',

@@ -69,9 +69,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { Card } from '#shared/types'
 
 defineProps({
   showAddCard: {
@@ -80,13 +79,11 @@ defineProps({
   },
 })
 
-const { data } = await useApi<{
-  cards: Card[]
-}>('/dashboard', { key: 'dashboard' })
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
 const cards = computed(() => data.value?.cards || [])
 
-function formatNumber(num: number): string {
+function formatNumber(num) {
   return num.toLocaleString('en-US')
 }
 </script>

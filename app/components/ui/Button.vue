@@ -8,15 +8,19 @@
   </button>
 </template>
 
-<script setup lang="ts">
-defineProps<{
-  variant?: 'primary' | 'secondary' | 'ghost'
-  disabled?: boolean
-}>()
+<script setup>
+defineProps({
+  variant: {
+    type: String,
+    default: 'primary'
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
 
-defineEmits<{
-  click: []
-}>()
+defineEmits(['click'])
 </script>
 
 <style scoped>

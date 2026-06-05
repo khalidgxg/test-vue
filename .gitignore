@@ -30,3 +30,5 @@ logs
 *Zone.Identifier
 Zone.Identifier
 
+# Ignore other projects
+brooder369-frontend/

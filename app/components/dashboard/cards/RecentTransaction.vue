@@ -27,18 +27,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { Transaction, TransactionRaw } from '#shared/types'
 
-const { data } = await useApi<{
-  recent_transactions: TransactionRaw[]
-}>('/dashboard', { key: 'dashboard' })
+const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
-const transactions = computed<Transaction[]>(() => {
+const transactions = computed(() => {
   const raws = data.value?.recent_transactions || []
   
-  const iconMap: Record<string, string> = {
+  const iconMap = {
     card: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8H17" stroke="currentColor" stroke-width="1.5"/></svg>',
     paypal: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 16H4C3.44772 16 3 15.5523 3 15V5C3 4.44772 3.44772 4 4 4H12C13.6569 4 15 5.34315 15 7V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8 12H16C16.5523 12 17 12.4477 17 13V15C17 15.5523 16.5523 16 16 16H8C7.44772 16 7 15.5523 7 15V13C7 12.4477 7.44772 12 8 12Z" stroke="currentColor" stroke-width="1.5"/></svg>',
     user: '<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M10 7V13M7 10H13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
@@ -55,7 +52,7 @@ const transactions = computed<Transaction[]>(() => {
   }))
 })
 
-function formatNumber(num: number): string {
+function formatNumber(num) {
   return num.toLocaleString('en-US')
 }
 </script>

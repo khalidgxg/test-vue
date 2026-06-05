@@ -67,22 +67,10 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
 
-interface DataPoint {
-  month: string
-  balance: number
-}
-
-interface Point {
-  x: number
-  y: number
-}
-
-const { data: rawResponse } = await useApi<{
-  balance_history: DataPoint[]
-}>('/dashboard', { key: 'dashboard' })
+const { data: rawResponse } = await useApi('/dashboard', { key: 'dashboard' })
 
 const apiData = computed(() => rawResponse.value?.balance_history || [])
 
@@ -101,7 +89,7 @@ const yLabels = [0, 200, 400, 600, 800].reverse().map((value) => ({
   y: chartTop + chartAreaHeight - (value / maxValue) * chartAreaHeight,
 }))
 
-const points = computed<Point[]>(() => {
+const points = computed(() => {
   const list = apiData.value
   const spacing = monthSpacing.value
   return list.map((item, index) => ({

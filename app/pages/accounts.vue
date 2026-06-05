@@ -377,14 +377,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type {
-  SummaryMetric,
-  AccountTransaction,
-  ChartDay,
-  Invoice
-} from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -395,13 +389,7 @@ useHead({
   title: 'Accounts - BankDash',
 })
 
-const { data } = await useApi<{
-  summary_metrics: SummaryMetric[]
-  transactions: AccountTransaction[]
-  chart_days: ChartDay[]
-  invoices: Invoice[]
-  card: { balance: number; holder: string; expiry: string; number: string }
-}>('/accounts')
+const { data } = await useApi('/accounts')
 
 const summaryMetrics = computed(() => data.value?.summary_metrics || [])
 const transactions = computed(() => data.value?.transactions || [])
@@ -420,7 +408,7 @@ const chartBars = computed(() => {
   }))
 })
 
-function formatNumber(value: number): string {
+function formatNumber(value) {
   return value.toLocaleString('en-US')
 }
 </script>

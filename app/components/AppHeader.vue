@@ -9,7 +9,7 @@
   </header>
 </template>
 
-<script setup lang="ts">
+<script setup>
 const config = useRuntimeConfig()
 const appName = computed(() => config.public.appName)
 </script>

@@ -4,7 +4,7 @@
   </footer>
 </template>
 
-<script setup lang="ts">
+<script setup>
 const config = useRuntimeConfig()
 const appName = computed(() => config.public.appName)
 const year = new Date().getFullYear()

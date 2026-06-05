@@ -225,9 +225,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, computed } from 'vue'
-import type { CreditCard, CardListItem, CardSetting } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -236,23 +235,15 @@ definePageMeta({
 
 useHead({ title: 'Credit Cards - BankDash' })
 
-const { data } = await useApi<{
-  my_cards: CreditCard[]
-  donut_data: { label: string; value: number; color: string }[]
-}>('/credit-cards')
+const { data } = await useApi('/credit-cards')
 
 const myCards = computed(() => data.value?.my_cards || [])
 
-function formatNumber(num: number): string {
+function formatNumber(num) {
   return num.toLocaleString('en-US')
 }
 
 // ── Donut Chart ───────────────────────────────────────────────────────────────
-interface DonutSegment {
-  path: string
-  color: string
-}
-
 const donutData = computed(() => data.value?.donut_data || [])
 
 const donutLegend = computed(() => {
@@ -260,8 +251,8 @@ const donutLegend = computed(() => {
   return [...dataList].sort((a, b) => b.value - a.value)
 })
 
-const donutSegments = computed<DonutSegment[]>(() => {
-  const segments: DonutSegment[] = []
+const donutSegments = computed(() => {
+  const segments = []
   let currentAngle = -90
   const outerR = 90
   const innerR = 43
@@ -272,7 +263,7 @@ const donutSegments = computed<DonutSegment[]>(() => {
     const start = currentAngle + gap / 2
     const end = currentAngle + angle - gap / 2
 
-    const toRad = (deg: number) => (deg * Math.PI) / 180
+    const toRad = (deg) => (deg * Math.PI) / 180
     const x1 = outerR * Math.cos(toRad(start))
     const y1 = outerR * Math.sin(toRad(start))
     const x2 = outerR * Math.cos(toRad(end))
@@ -291,13 +282,13 @@ const donutSegments = computed<DonutSegment[]>(() => {
 })
 
 // ── Card List ─────────────────────────────────────────────────────────────────
-const cardList = computed<CardListItem[]>(() => {
+const cardList = computed(() => {
   const cards = myCards.value
-  const bgMap: Record<string, string> = {
+  const bgMap = {
     Visa: '#E7EDFF',
     Mastercard: '#FFE0EB',
   }
-  const colorMap: Record<string, string> = {
+  const colorMap = {
     Visa: '#396AFF',
     Mastercard: '#FF4B4A',
   }
@@ -315,13 +306,13 @@ const cardList = computed<CardListItem[]>(() => {
 // ── Add New Card Form ─────────────────────────────────────────────────────────
 const newCard = ref({ type: '', name: '', number: '', expiry: '' })
 
-function handleAddCard(): void {
+function handleAddCard() {
   console.log('Adding card:', newCard.value)
   newCard.value = { type: '', name: '', number: '', expiry: '' }
 }
 
 // ── Card Settings ─────────────────────────────────────────────────────────────
-const cardSettings: CardSetting[] = [
+const cardSettings = [
   {
     id: 1,
     title: 'Block Card',

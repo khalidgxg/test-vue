@@ -51,9 +51,8 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { computed } from 'vue'
-import type { FeaturedService, BankService } from '#shared/types'
 
 definePageMeta({
   layout: 'dashboard',
@@ -62,10 +61,7 @@ definePageMeta({
 
 useHead({ title: 'Services - BankDash' })
 
-const { data } = await useApi<{
-  featured_services: FeaturedService[]
-  bank_services: BankService[]
-}>('/services')
+const { data } = await useApi('/services')
 
 const featuredServices = computed(() => data.value?.featured_services || [])
 const bankServices = computed(() => data.value?.bank_services || [])
