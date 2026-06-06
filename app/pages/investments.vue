@@ -1,646 +1,465 @@
+<script setup>
+useHead({ title: 'Investments' })
+definePageMeta({ title: 'Investments' })
+
+const { data: inv } = await useApi('/investments', { key: 'investments' })
+
+const summaryIcons = [
+  { icon: 'mdi-safe', color: '#16DBCC', bg: '#DCFAF8' },
+  { icon: 'mdi-finance', color: '#FF4B4A', bg: '#FFE0EB' },
+  { icon: 'mdi-sync', color: '#396AFF', bg: '#E7EDFF' },
+]
+
+const myInvestments = [
+  { id: 1, name: 'Apple Store', category: 'E-commerce, Marketplace', amount: 54000, returnValue: '+16%', tone: 'pink', icon: 'mdi-apple' },
+  { id: 2, name: 'Samsung Mobile', category: 'E-commerce, Marketplace', amount: 25300, returnValue: '-4%', tone: 'blue', icon: 'mdi-google' },
+  { id: 3, name: 'Tesla Motors', category: 'Electric Vehicles', amount: 8200, returnValue: '+25%', tone: 'yellow', icon: 'mdi-car-outline' },
+]
+
+const trendingStocks = [
+  { id: 1, name: 'Trivago', price: '$520', returnValue: '+5%', returnType: 'up' },
+  { id: 2, name: 'Canon', price: '$480', returnValue: '+10%', returnType: 'up' },
+  { id: 3, name: 'Uber Food', price: '$350', returnValue: '-3%', returnType: 'down' },
+  { id: 4, name: 'Nokia', price: '$940', returnValue: '+2%', returnType: 'up' },
+  { id: 5, name: 'Tiktok', price: '$670', returnValue: '-12%', returnType: 'down' },
+]
+
+const toneMap = {
+  yellow: { bg: '#FFF5D9', color: '#FFBB38' },
+  blue: { bg: '#E7EDFF', color: '#396AFF' },
+  pink: { bg: '#FFE0EB', color: '#FF4B4A' },
+}
+
+// Build Yearly chart (line)
+const yearlyChart = computed(() => {
+  const data = inv.value?.yearly_data || []
+  if (!data.length) return { line: '', area: '', yLabels: [] }
+  const maxVal = Math.max(...data.map(d => d.value), 100)
+  const minVal = 0
+  const range = maxVal - minVal || 1
+  const width = 100
+  const height = 100
+  const stepX = width / (data.length - 1 || 1)
+
+  const points = data.map((d, i) => ({
+    x: i * stepX,
+    y: height - ((d.value - minVal) / range) * height,
+  }))
+
+  let linePath = `M ${points[0].x} ${points[0].y}`
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i]
+    const next = points[i + 1]
+    const cp1x = current.x + (next.x - current.x) * 0.5
+    linePath += ` L ${cp1x} ${current.y} L ${cp1x} ${next.y}`
+  }
+  linePath += ` L ${points[points.length - 1].x} ${points[points.length - 1].y}`
+
+  const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`
+
+  const maxRounded = Math.ceil(maxVal / 10000) * 10000
+  const yLabels = [0, 0.25, 0.5, 0.75, 1].map(r => `$${Math.round(maxRounded * r).toLocaleString()}`)
+
+  return { line: linePath, area: areaPath, yLabels, data, points }
+})
+
+// Build Monthly chart (smooth wave)
+const monthlyChart = computed(() => {
+  const data = inv.value?.monthly_data || []
+  if (!data.length) return { line: '', area: '', yLabels: [] }
+  const maxVal = Math.max(...data.map(d => d.value), 100)
+  const minVal = 0
+  const range = maxVal - minVal || 1
+  const width = 100
+  const height = 100
+  const stepX = width / (data.length - 1 || 1)
+
+  const points = data.map((d, i) => ({
+    x: i * stepX,
+    y: height - ((d.value - minVal) / range) * height,
+  }))
+
+  let linePath = `M ${points[0].x} ${points[0].y}`
+  for (let i = 0; i < points.length - 1; i++) {
+    const current = points[i]
+    const next = points[i + 1]
+    const cp1x = current.x + (next.x - current.x) * 0.5
+    const cp1y = current.y
+    const cp2x = current.x + (next.x - current.x) * 0.5
+    const cp2y = next.y
+    linePath += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${next.x} ${next.y}`
+  }
+
+  const areaPath = `${linePath} L ${width} ${height} L 0 ${height} Z`
+
+  const maxRounded = Math.ceil(maxVal / 10000) * 10000
+  const yLabels = [0, 0.25, 0.5, 0.75, 1].map(r => `$${Math.round(maxRounded * r).toLocaleString()}`)
+
+  return { line: linePath, area: areaPath, yLabels, data, points }
+})
+</script>
+
 <template>
   <div class="investments-page">
-    <!-- Summary Cards -->
-    <div class="investments-page__summary">
-      <div v-for="stat in summaryStats" :key="stat.id" class="inv-stat-card">
-        <div class="inv-stat-card__icon" :style="{ backgroundColor: stat.iconBg }">
-          <span v-html="stat.icon"></span>
-        </div>
-        <div class="inv-stat-card__info">
-          <span class="inv-stat-card__label">{{ stat.label }}</span>
-          <span class="inv-stat-card__value">{{ stat.value }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- 3 Summary cards -->
+    <v-row dense>
+      <v-col
+        v-for="(metric, idx) in inv?.summary_stats"
+        :key="metric.id"
+        cols="12"
+        md="4"
+      >
+        <v-card class="summary-card" elevation="0" rounded="xl">
+          <v-avatar :color="summaryIcons[idx]?.bg" size="60" rounded="circle">
+            <v-icon :color="summaryIcons[idx]?.color" size="28">
+              {{ summaryIcons[idx]?.icon }}
+            </v-icon>
+          </v-avatar>
+          <div class="summary-card__info">
+            <span class="summary-card__label">{{ metric.label }}</span>
+            <span class="summary-card__value">{{ metric.value }}</span>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
 
-    <!-- Charts Row -->
-    <div class="investments-page__charts">
-      <!-- Yearly Total Investment (Line Chart) -->
-      <div class="chart-card">
-        <h2 class="chart-card__title">Yearly Total Investment</h2>
-        <div class="chart-card__body">
-          <svg :viewBox="`0 0 ${yearlyChart.width} ${yearlyChart.height}`" class="chart-svg">
-            <defs>
-              <linearGradient id="yearlyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#FCAA0B" stop-opacity="0.2" />
-                <stop offset="100%" stop-color="#FCAA0B" stop-opacity="0.01" />
-              </linearGradient>
-            </defs>
-            <!-- Grid lines -->
-            <line
-              v-for="label in yearlyChart.yLabels"
-              :key="'yg-' + label.value"
-              :x1="yearlyChart.gridLeft"
-              :y1="label.y"
-              :x2="yearlyChart.width - 10"
-              :y2="label.y"
-              stroke="#F3F3F5"
-              stroke-width="1"
-              stroke-dasharray="4 3"
-            />
-            <!-- Y labels -->
-            <text
-              v-for="label in yearlyChart.yLabels"
-              :key="'yl-' + label.value"
-              :x="yearlyChart.gridLeft - 5"
-              :y="label.y + 4"
-              class="chart-axis-label"
-              text-anchor="end"
-            >
-              {{ label.text }}
-            </text>
-            <!-- Area -->
-            <path :d="yearlyAreaPath" fill="url(#yearlyGrad)" />
-            <!-- Line -->
-            <path
-              :d="yearlyLinePath"
-              fill="none"
-              stroke="#FCAA0B"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <!-- X labels -->
-            <text
-              v-for="(label, i) in yearlyChart.xLabels"
-              :key="'xl-' + label"
-              :x="yearlyChart.gridLeft + i * yearlyChart.xSpacing"
-              :y="yearlyChart.height - 5"
-              class="chart-axis-label"
-              text-anchor="middle"
-            >
-              {{ label }}
-            </text>
-          </svg>
-        </div>
-      </div>
-
-      <!-- Monthly Revenue (Smooth Curve) -->
-      <div class="chart-card">
-        <h2 class="chart-card__title">Monthly Revenue</h2>
-        <div class="chart-card__body">
-          <svg :viewBox="`0 0 ${monthlyChart.width} ${monthlyChart.height}`" class="chart-svg">
-            <defs>
-              <linearGradient id="monthlyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stop-color="#16DBCC" stop-opacity="0.18" />
-                <stop offset="100%" stop-color="#16DBCC" stop-opacity="0.01" />
-              </linearGradient>
-            </defs>
-            <!-- Grid lines -->
-            <line
-              v-for="label in monthlyChart.yLabels"
-              :key="'mg-' + label.value"
-              :x1="monthlyChart.gridLeft"
-              :y1="label.y"
-              :x2="monthlyChart.width - 10"
-              :y2="label.y"
-              stroke="#F3F3F5"
-              stroke-width="1"
-              stroke-dasharray="4 3"
-            />
-            <!-- Y labels -->
-            <text
-              v-for="label in monthlyChart.yLabels"
-              :key="'ml-' + label.value"
-              :x="monthlyChart.gridLeft - 5"
-              :y="label.y + 4"
-              class="chart-axis-label"
-              text-anchor="end"
-            >
-              {{ label.text }}
-            </text>
-            <!-- Area -->
-            <path :d="monthlyAreaPath" fill="url(#monthlyGrad)" />
-            <!-- Line -->
-            <path
-              :d="monthlyLinePath"
-              fill="none"
-              stroke="#16DBCC"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <!-- X labels -->
-            <text
-              v-for="(label, i) in monthlyChart.xLabels"
-              :key="'mxl-' + label"
-              :x="monthlyChart.gridLeft + i * monthlyChart.xSpacing"
-              :y="monthlyChart.height - 5"
-              class="chart-axis-label"
-              text-anchor="middle"
-            >
-              {{ label }}
-            </text>
-          </svg>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bottom Row: My Investment + Trending Stock -->
-    <div class="investments-page__bottom">
-      <!-- My Investment -->
-      <div class="my-investment-card">
-        <h2 class="section-title">My Investment</h2>
-        <div class="my-investment-list">
-          <div v-for="inv in myInvestments" :key="inv.id" class="my-investment-item">
-            <div class="my-investment-item__icon" :style="{ backgroundColor: inv.iconBg }">
-              <span v-html="inv.icon"></span>
+    <!-- Yearly + Monthly Charts -->
+    <v-row dense class="mt-3">
+      <v-col cols="12" lg="6">
+        <v-card class="data-card" elevation="0" rounded="xl">
+          <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">Yearly Total Investment</h2>
+          <div class="chart-wrapper">
+            <div class="chart-y-axis">
+              <span v-for="(label, idx) in yearlyChart.yLabels" :key="idx">{{ label }}</span>
             </div>
-            <div class="my-investment-item__info">
-              <span class="my-investment-item__name">{{ inv.name }}</span>
-              <span class="my-investment-item__category">{{ inv.category }}</span>
+            <div class="chart-canvas">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="chart-svg">
+                <defs>
+                  <linearGradient id="yearlyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#FC7900" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#FC7900" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path :d="yearlyChart.area" fill="url(#yearlyGradient)" />
+                <path
+                  :d="yearlyChart.line"
+                  fill="none"
+                  stroke="#FC7900"
+                  stroke-width="0.8"
+                  vector-effect="non-scaling-stroke"
+                />
+                <circle
+                  v-for="(point, idx) in yearlyChart.points"
+                  :key="idx"
+                  :cx="point.x"
+                  :cy="point.y"
+                  r="1"
+                  fill="white"
+                  stroke="#FC7900"
+                  stroke-width="0.6"
+                  vector-effect="non-scaling-stroke"
+                />
+              </svg>
             </div>
-            <div class="my-investment-item__stats">
-              <div class="my-investment-item__value-group">
-                <span class="my-investment-item__amount">{{ inv.amount }}</span>
-                <span class="my-investment-item__amount-label">Envestment Value</span>
+          </div>
+          <div class="chart-x-axis">
+            <span v-for="(point, idx) in yearlyChart.data" :key="idx">{{ point.year }}</span>
+          </div>
+        </v-card>
+      </v-col>
+
+      <v-col cols="12" lg="6">
+        <v-card class="data-card" elevation="0" rounded="xl">
+          <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">Monthly Revenue</h2>
+          <div class="chart-wrapper">
+            <div class="chart-y-axis">
+              <span v-for="(label, idx) in monthlyChart.yLabels" :key="idx">{{ label }}</span>
+            </div>
+            <div class="chart-canvas">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="chart-svg">
+                <defs>
+                  <linearGradient id="monthlyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#16DBCC" stop-opacity="0.3" />
+                    <stop offset="100%" stop-color="#16DBCC" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <path :d="monthlyChart.area" fill="url(#monthlyGradient)" />
+                <path
+                  :d="monthlyChart.line"
+                  fill="none"
+                  stroke="#16DBCC"
+                  stroke-width="0.8"
+                  vector-effect="non-scaling-stroke"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+          <div class="chart-x-axis">
+            <span v-for="(point, idx) in monthlyChart.data" :key="idx">{{ point.year }}</span>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
+
+    <!-- My Investment + Trending Stock -->
+    <v-row dense class="mt-3">
+      <v-col cols="12" lg="6">
+        <v-card class="data-card" elevation="0" rounded="xl">
+          <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">My Investment</h2>
+          <div class="investment-list">
+            <div
+              v-for="item in myInvestments"
+              :key="item.id"
+              class="investment-item"
+            >
+              <v-avatar :color="toneMap[item.tone]?.bg" size="50" rounded="circle">
+                <v-icon :color="toneMap[item.tone]?.color" size="24">{{ item.icon }}</v-icon>
+              </v-avatar>
+              <div class="investment-item__info">
+                <span class="investment-item__name">{{ item.name }}</span>
+                <span class="investment-item__category">{{ item.category }}</span>
               </div>
-              <div class="my-investment-item__value-group">
-                <span
-                  class="my-investment-item__return"
-                  :class="inv.returnPositive ? 'text-success' : 'text-danger'"
-                  >{{ inv.returnValue }}</span
-                >
-                <span class="my-investment-item__amount-label">Return Value</span>
+              <div class="investment-item__col">
+                <span class="investment-item__amount">${{ item.amount.toLocaleString() }}</span>
+                <span class="investment-item__subtitle">Investment Value</span>
+              </div>
+              <div class="investment-item__col">
+                <span :class="['investment-item__return', `investment-item__return--${item.returnValue.startsWith('+') ? 'up' : 'down'}`]">
+                  {{ item.returnValue }}
+                </span>
+                <span class="investment-item__subtitle">Return Value</span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </v-card>
+      </v-col>
 
-      <!-- Trending Stock -->
-      <div class="trending-stock-card">
-        <h2 class="section-title">Trending Stock</h2>
-        <div class="trending-table-container">
-          <table class="trending-table">
-            <thead>
-              <tr>
-                <th>SL No</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th class="text-right">Return</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="stock in trendingStocks" :key="stock.id">
-                <td class="text-muted">{{ stock.slNo }}</td>
-                <td>{{ stock.name }}</td>
-                <td>{{ stock.price }}</td>
-                <td
-                  class="text-right font-bold"
-                  :class="stock.returnPositive ? 'text-success' : 'text-danger'"
-                >
-                  {{ stock.returnValue }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+      <v-col cols="12" lg="6">
+        <v-card class="data-card" elevation="0" rounded="xl">
+          <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">Trending Stock</h2>
+          <div class="stock-table">
+            <div class="stock-table__header">
+              <span>SL No</span>
+              <span>Name</span>
+              <span>Price</span>
+              <span>Return</span>
+            </div>
+            <div
+              v-for="(stock, idx) in trendingStocks"
+              :key="stock.id"
+              class="stock-table__row"
+            >
+              <span class="stock-table__idx">{{ String(idx + 1).padStart(2, '0') }}.</span>
+              <span class="stock-table__name">{{ stock.name }}</span>
+              <span class="stock-table__price">{{ stock.price }}</span>
+              <span :class="['stock-table__return', `stock-table__return--${stock.returnType}`]">
+                {{ stock.returnValue }}
+              </span>
+            </div>
+          </div>
+        </v-card>
+      </v-col>
+    </v-row>
   </div>
 </template>
-
-<script setup>
-import { computed } from 'vue'
-
-definePageMeta({
-  
-  title: 'Investments',
-})
-
-useHead({ title: 'Investments - BankDash' })
-
-const { data } = await useApi('/investments')
-
-const summaryStats = computed(() => {
-  const stats = data.value?.summary_stats || []
-  const bgMap = {
-    invested: '#DCFAF8',
-    number: '#FFE0EB',
-    rate: '#E7EDFF'
-  }
-  const iconMap = {
-    invested: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="8" stroke="#16DBCC" stroke-width="1.8"/><path d="M14 10V14L17 17" stroke="#16DBCC" stroke-width="1.8" stroke-linecap="round"/></svg>',
-    number: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="11" cy="11" r="5" stroke="#FF4B4A" stroke-width="1.8"/><circle cx="19" cy="19" r="5" stroke="#FF4B4A" stroke-width="1.8"/></svg>',
-    rate: '<svg width="28" height="28" viewBox="0 0 28 28" fill="none"><path d="M5 14C5 14 8 8 14 8C20 8 23 14 23 14C23 14 20 20 14 20C8 20 5 14 5 14Z" stroke="#396AFF" stroke-width="1.8"/><circle cx="14" cy="14" r="3" stroke="#396AFF" stroke-width="1.8"/></svg>'
-  }
-  return stats.map((s, idx) => ({
-    id: idx + 1,
-    label: s.label,
-    value: s.value,
-    iconBg: bgMap[s.icon] || '#DCFAF8',
-    icon: iconMap[s.icon] || ''
-  }))
-})
-
-const yearlyData = computed(() => {
-  const raw = data.value?.yearly_data || []
-  return raw.map(d => ({ year: String(d.year), value: d.value }))
-})
-
-const yearlyChart = computed(() => {
-  const width = 420
-  const height = 220
-  const gridLeft = 55
-  const chartTop = 15
-  const areaH = 170
-  const maxVal = 40000
-  const yData = yearlyData.value
-  const xSpacing = (width - gridLeft - 10) / Math.max(yData.length - 1, 1)
-  const yLabels = [0, 10000, 20000, 30000, 40000].reverse().map((v) => ({
-    value: v,
-    y: chartTop + areaH - (v / maxVal) * areaH,
-    text: `$${v === 0 ? '0' : v / 1000 + ',000'}`,
-  }))
-  return {
-    width,
-    height,
-    gridLeft,
-    chartTop,
-    areaH,
-    maxVal,
-    xSpacing,
-    yLabels,
-    xLabels: yData.map((d) => d.year),
-  }
-})
-
-const yearlyPoints = computed(() => {
-  const yData = yearlyData.value
-  const chart = yearlyChart.value
-  return yData.map((d, i) => ({
-    x: chart.gridLeft + i * chart.xSpacing,
-    y: chart.chartTop + chart.areaH - (d.value / chart.maxVal) * chart.areaH,
-  }))
-})
-
-const yearlyLinePath = computed(() => {
-  const pts = yearlyPoints.value
-  return pts
-    .map((p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`
-      const prev = pts[i - 1]
-      const t = 0.35
-      return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
-    })
-    .join(' ')
-})
-
-const yearlyAreaPath = computed(() => {
-  const pts = yearlyPoints.value
-  const chart = yearlyChart.value
-  if (pts.length === 0) return ''
-  const first = pts[0]
-  const last = pts[pts.length - 1]
-  return `${yearlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
-})
-
-const monthlyData = computed(() => {
-  const raw = data.value?.monthly_data || []
-  return raw.map(d => ({ year: d.month, value: d.value }))
-})
-
-const monthlyChart = computed(() => {
-  const width = 420
-  const height = 220
-  const gridLeft = 55
-  const chartTop = 15
-  const areaH = 170
-  const maxVal = 40000
-  const mData = monthlyData.value
-  const xSpacing = (width - gridLeft - 10) / Math.max(mData.length - 1, 1)
-  const yLabels = [0, 10000, 20000, 30000, 40000].reverse().map((v) => ({
-    value: v,
-    y: chartTop + areaH - (v / maxVal) * areaH,
-    text: `$${v === 0 ? '0' : v / 1000 + ',000'}`,
-  }))
-  return {
-    width,
-    height,
-    gridLeft,
-    chartTop,
-    areaH,
-    maxVal,
-    xSpacing,
-    yLabels,
-    xLabels: mData.map((d) => d.year),
-  }
-})
-
-const monthlyPoints = computed(() => {
-  const mData = monthlyData.value
-  const chart = monthlyChart.value
-  return mData.map((d, i) => ({
-    x: chart.gridLeft + i * chart.xSpacing,
-    y: chart.chartTop + chart.areaH - (d.value / chart.maxVal) * chart.areaH,
-  }))
-})
-
-const monthlyLinePath = computed(() => {
-  const pts = monthlyPoints.value
-  return pts
-    .map((p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`
-      const prev = pts[i - 1]
-      const t = 0.4
-      return `C ${prev.x + (p.x - prev.x) * t} ${prev.y} ${p.x - (p.x - prev.x) * t} ${p.y} ${p.x} ${p.y}`
-    })
-    .join(' ')
-})
-
-const monthlyAreaPath = computed(() => {
-  const pts = monthlyPoints.value
-  const chart = monthlyChart.value
-  if (pts.length === 0) return ''
-  const first = pts[0]
-  const last = pts[pts.length - 1]
-  return `${monthlyLinePath.value} L ${last.x} ${chart.chartTop + chart.areaH} L ${first.x} ${chart.chartTop + chart.areaH} Z`
-})
-
-const myInvestments = computed(() => {
-  const raw = data.value?.my_investments || []
-  const bgMap = {
-    apple: '#FFE0EB',
-    google: '#E7EDFF',
-    tesla: '#FFF5D9',
-  }
-  const iconMap = {
-    apple: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 4C9 4 7 6.5 7 9C7 13 10 17 12 20C14 17 17 13 17 9C17 6.5 15 4 12 4Z" stroke="#FF4B4A" stroke-width="1.5"/><circle cx="12" cy="9" r="2" fill="#FF4B4A"/></svg>',
-    google: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="7" y="3" width="10" height="18" rx="2" stroke="#396AFF" stroke-width="1.5"/><circle cx="12" cy="18" r="1" fill="#396AFF"/></svg>',
-    tesla: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 10H19M7 10C7 7 9 4 12 4C15 4 17 7 17 10" stroke="#FFBB38" stroke-width="1.5"/><path d="M12 10V20" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/><path d="M9 20H15" stroke="#FFBB38" stroke-width="1.5" stroke-linecap="round"/></svg>',
-  }
-  return raw.map(inv => ({
-    id: inv.id,
-    name: inv.name,
-    category: inv.category,
-    amount: '$' + inv.amount.toLocaleString('en-US'),
-    returnValue: (inv.returnRate > 0 ? '+' : '') + inv.returnRate + '%',
-    returnPositive: inv.returnType === 'up',
-    iconBg: bgMap[inv.icon] || '#FFE0EB',
-    icon: iconMap[inv.icon] || '',
-  }))
-})
-
-const trendingStocks = computed(() => {
-  const raw = data.value?.trending_stocks || []
-  return raw.map((stock, index) => ({
-    id: stock.id,
-    slNo: `0${index + 1}.`,
-    name: stock.name,
-    price: '$' + stock.price.toLocaleString('en-US'),
-    returnValue: (stock.returnRate > 0 ? '+' : '') + stock.returnRate + '%',
-    returnPositive: stock.returnType === 'up',
-  }))
-})
-</script>
 
 <style scoped>
 .investments-page {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.75rem;
 }
 
-/* ── Summary cards ─────────────────────────────── */
-.investments-page__summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+.summary-card {
+  padding: 1.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
 }
 
-.inv-stat-card {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-2xl);
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  transition: box-shadow 0.2s ease;
-}
-
-.inv-stat-card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-.inv-stat-card__icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.inv-stat-card__info {
+.summary-card__info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 4px;
 }
 
-.inv-stat-card__label {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-light);
+.summary-card__label {
+  font-size: 0.9375rem;
+  color: #718ebf;
 }
 
-.inv-stat-card__value {
-  font-size: 1.5rem;
+.summary-card__value {
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #343c6a;
 }
 
-/* ── Charts row ────────────────────────────────── */
-.investments-page__charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+.data-card {
+  padding: 1.5rem !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
 }
 
-.chart-card {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-2xl);
-  padding: 1.5rem;
+/* Chart */
+.chart-wrapper {
+  display: flex;
+  gap: 0.75rem;
+  min-height: 200px;
 }
 
-.chart-card__title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 1rem;
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 0.75rem;
+  color: #b1b1b1;
+  text-align: right;
+  min-width: 48px;
+  height: 200px;
 }
 
-.chart-card__body {
-  overflow-x: auto;
+.chart-canvas {
+  flex: 1;
+  height: 200px;
 }
 
 .chart-svg {
   width: 100%;
-  height: auto;
-  min-width: 300px;
+  height: 100%;
+  display: block;
 }
 
-.chart-axis-label {
-  font-size: 10px;
-  fill: var(--color-text-muted);
-  font-family: var(--font-family);
+.chart-x-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-inline-start: 56px;
+  font-size: 0.8125rem;
+  color: #718ebf;
 }
 
-/* ── Bottom row ────────────────────────────────── */
-.investments-page__bottom {
+/* Investment List */
+.investment-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.investment-item {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-}
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin-bottom: 1.25rem;
-}
-
-/* My Investments */
-.my-investment-card,
-.trending-stock-card {
-  background-color: var(--color-surface);
-  border-radius: var(--radius-2xl);
-  padding: 1.5rem;
-}
-
-.my-investment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.my-investment-item {
-  display: flex;
+  grid-template-columns: 50px 1fr 1fr 1fr;
   align-items: center;
   gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e6eff5;
+}
+
+.investment-item:last-child {
+  border-bottom: none;
+}
+
+.investment-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.investment-item__name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #343c6a;
+}
+
+.investment-item__category {
+  font-size: 0.75rem;
+  color: #b1b1b1;
+}
+
+.investment-item__col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.investment-item__amount {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #343c6a;
+}
+
+.investment-item__subtitle {
+  font-size: 0.75rem;
+  color: #b1b1b1;
+}
+
+.investment-item__return {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.investment-item__return--up {
+  color: #41d4a8;
+}
+
+.investment-item__return--down {
+  color: #ff4b4a;
+}
+
+/* Stock Table */
+.stock-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.stock-table__header {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
   padding: 0.75rem 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.my-investment-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.my-investment-item__icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.my-investment-item__info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.my-investment-item__name {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.my-investment-item__category {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-light);
-}
-
-.my-investment-item__stats {
-  display: flex;
-  gap: 1.25rem;
-}
-
-.my-investment-item__value-group {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  text-align: right;
-}
-
-.my-investment-item__amount {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.my-investment-item__return {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-}
-
-.my-investment-item__amount-label {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-light);
-}
-
-/* Trending Stock Table */
-.trending-table-container {
-  overflow-x: auto;
-}
-
-.trending-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.trending-table th {
-  padding: 0.625rem 0.75rem 0.875rem;
-  font-size: 13px;
+  font-size: 0.875rem;
+  color: #b1b1b1;
   font-weight: 500;
-  color: var(--color-primary);
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid #e6eff5;
 }
 
-.trending-table td {
-  padding: 0.875rem 0.75rem;
-  font-size: 14px;
-  color: var(--color-text);
-  border-bottom: 1px solid var(--color-border);
+.stock-table__row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr;
+  align-items: center;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e6eff5;
+  font-size: 0.9375rem;
 }
 
-.trending-table tr:last-child td {
+.stock-table__row:last-child {
   border-bottom: none;
 }
 
-.text-right {
-  text-align: right;
+.stock-table__idx {
+  color: #b1b1b1;
 }
 
-.text-muted {
-  color: var(--color-text-light) !important;
+.stock-table__name {
+  font-weight: 500;
+  color: #343c6a;
 }
 
-.text-success {
-  color: var(--color-success) !important;
+.stock-table__price {
+  color: #343c6a;
 }
 
-.text-danger {
-  color: var(--color-danger) !important;
+.stock-table__return--up {
+  color: #41d4a8;
+  font-weight: 600;
 }
 
-.font-bold {
-  font-weight: 700;
-}
-
-@media (max-width: 1100px) {
-  .investments-page__charts,
-  .investments-page__bottom {
-    grid-template-columns: 1fr;
-  }
-
-  .investments-page__summary {
-    grid-template-columns: 1fr;
-  }
+.stock-table__return--down {
+  color: #ff4b4a;
+  font-weight: 600;
 }
 </style>

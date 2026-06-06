@@ -9,6 +9,7 @@ const authStore = useAuthStore()
 const { rules } = useValidationRules()
 const router = useRouter()
 const globalStore = useGlobalStore()
+const localePath = useLocalePath()
 
 const form = reactive({ email: 'admin@admin.com', password: 'password' })
 const showPassword = ref(false)

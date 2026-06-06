@@ -21,7 +21,7 @@ function selectContact(id) {
   selectedId.value = id
 }
 
-const amount = ref('')
+const amount = ref('525.50')
 
 function handleSend() {
   if (amount.value) {
@@ -32,8 +32,8 @@ function handleSend() {
 </script>
 
 <template>
-  <v-card class="quick-transfer" elevation="0">
-    <h2 class="text-h6 font-weight-bold mb-4">Quick Transfer</h2>
+  <v-card class="quick-transfer" elevation="0" rounded="xl">
+    <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">Quick Transfer</h2>
 
     <div class="quick-transfer__contacts">
       <button
@@ -44,7 +44,7 @@ function handleSend() {
         @click="selectContact(contact.id)"
       >
         <v-avatar
-          size="60"
+          size="70"
           :class="{ 'quick-transfer__avatar--selected': contact.id === selectedId }"
         >
           <img :src="contact.avatar" :alt="contact.name" cover>
@@ -56,12 +56,13 @@ function handleSend() {
       <v-btn
         icon
         variant="elevated"
-        elevation="1"
+        elevation="2"
         size="small"
         aria-label="Next contacts"
         class="quick-transfer__next-btn"
+        color="white"
       >
-        <v-icon>mdi-chevron-right</v-icon>
+        <v-icon color="grey-darken-3">mdi-chevron-right</v-icon>
       </v-btn>
     </div>
 
@@ -70,14 +71,14 @@ function handleSend() {
       <div class="quick-transfer__input-wrapper">
         <input
           v-model="amount"
-          type="number"
+          type="text"
           placeholder="525.50"
           class="quick-transfer__input"
         >
         <button class="quick-transfer__send-btn" @click="handleSend">
           Send
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-            <path d="M4 10L16 4L14 16L10 12L4 10Z" fill="currentColor" />
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 10L17 3L14 17L9 12L3 10Z" fill="white" />
           </svg>
         </button>
       </div>
@@ -88,15 +89,15 @@ function handleSend() {
 <style scoped>
 .quick-transfer {
   padding: 1.5rem !important;
-  border: 1px solid rgb(var(--v-theme-grey-100));
+  background: #ffffff !important;
+  border-radius: 25px !important;
 }
 
 .quick-transfer__contacts {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .quick-transfer__contact {
@@ -113,84 +114,93 @@ function handleSend() {
 }
 
 .quick-transfer__avatar--selected {
-  border: 2px solid rgb(var(--v-theme-primary));
+  border: 3px solid #1814f3;
 }
 
 .quick-transfer__name {
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-weight: 600;
-  color: rgb(var(--v-theme-grey-700, 51 60 106));
+  color: #343c6a;
   text-align: center;
   white-space: nowrap;
 }
 
+.quick-transfer__contact--selected .quick-transfer__name {
+  font-weight: 700;
+  color: #343c6a;
+}
+
 .quick-transfer__role {
   font-size: 0.75rem;
-  color: rgb(var(--v-theme-grey-300, 177 177 177));
+  color: #8ba3cb;
   text-align: center;
 }
 
 .quick-transfer__next-btn {
   flex-shrink: 0;
+  margin-top: -1rem;
 }
 
 .quick-transfer__form {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .quick-transfer__label {
-  font-size: 0.875rem;
-  color: rgb(var(--v-theme-grey-300, 177 177 177));
+  font-size: 0.9375rem;
+  color: #343c6a;
   white-space: nowrap;
+  font-weight: 400;
 }
 
 .quick-transfer__input-wrapper {
   flex: 1;
   display: flex;
   align-items: center;
-  background-color: rgb(var(--v-theme-grey-50, 245 247 250));
+  background-color: #f5f7fa;
   border-radius: 9999px;
   overflow: hidden;
-  min-height: 48px;
+  min-height: 50px;
+  padding: 4px;
+  padding-inline-start: 1.25rem;
+  gap: 0.5rem;
 }
 
 .quick-transfer__input {
   flex: 1;
-  padding: 0.75rem 1.25rem;
   border: none;
   background: transparent;
-  font-size: 0.875rem;
-  color: inherit;
+  font-size: 0.9375rem;
+  color: #343c6a;
   outline: none;
   font-family: inherit;
+  min-width: 0;
 }
 
 .quick-transfer__input::placeholder {
-  color: rgb(var(--v-theme-grey-300, 177 177 177));
+  color: #b1b1b1;
 }
 
 .quick-transfer__send-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.6rem 1.5rem;
-  background-color: #343c6a;
+  padding: 0.625rem 1.5rem;
+  background-color: #1814f3;
   color: white;
   border: none;
   border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s ease;
   white-space: nowrap;
   font-family: inherit;
-  margin-right: 4px;
 }
 
 .quick-transfer__send-btn:hover {
-  background-color: rgb(var(--v-theme-primary));
+  background-color: #0a0ad1;
 }
 
 @media (max-width: 600px) {
@@ -198,10 +208,6 @@ function handleSend() {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
-  }
-
-  .quick-transfer__contacts {
-    gap: 0.75rem;
   }
 }
 </style>

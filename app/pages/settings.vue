@@ -1,295 +1,260 @@
+<script setup>
+useHead({ title: 'Setting' })
+definePageMeta({ title: 'Setting' })
+
+const tabs = ['Edit Profile', 'Preferences', 'Security']
+const activeTab = ref('Edit Profile')
+
+const { data: settings } = await useApi('/settings')
+
+const form = reactive({
+  name: settings.value?.profile?.name || 'Charlene Reed',
+  username: settings.value?.profile?.username || 'Charlene Reed',
+  email: settings.value?.profile?.email || 'charlenereed@gmail.com',
+  password: '',
+  dob: settings.value?.profile?.dob || '25 January 1990',
+  presentAddress: settings.value?.profile?.presentAddress || 'San Jose, California, USA',
+  permanentAddress: settings.value?.profile?.permanentAddress || 'San Jose, California, USA',
+  city: settings.value?.profile?.city || 'San Jose',
+  postal: settings.value?.profile?.postal || '45962',
+  country: settings.value?.profile?.country || 'USA',
+})
+
+const prefs = reactive({
+  twoFactor: settings.value?.preferences?.twoFactor ?? true,
+  newsletter: settings.value?.preferences?.newsletter ?? false,
+  pushNotif: settings.value?.preferences?.pushNotif ?? true,
+  smsNotif: settings.value?.preferences?.smsNotif ?? false,
+})
+
+const notifications = ref({
+  digitalCurrency: true,
+  merchantOrder: false,
+  recommendations: true,
+})
+</script>
+
 <template>
   <div class="settings-page">
-    <div class="settings-page__grid">
-      <v-card class="settings-card" elevation="0">
-        <h2 class="settings-card__title">Edit Profile</h2>
+    <v-card class="data-card" elevation="0" rounded="xl">
+      <v-tabs v-model="activeTab" color="primary" align-tabs="start" class="settings-tabs">
+        <v-tab
+          v-for="tab in tabs"
+          :key="tab"
+          :value="tab"
+          class="text-none"
+        >
+          {{ tab }}
+        </v-tab>
+      </v-tabs>
 
-        <div class="settings-avatar">
-          <v-avatar size="90">
-            <img src="https://i.pravatar.cc/120?img=47" alt="Profile photo" />
-          </v-avatar>
-          <v-btn
-            class="settings-avatar__edit"
-            icon
-            size="small"
-            color="primary"
-            aria-label="Change profile photo"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-          </v-btn>
-        </div>
+      <v-window v-model="activeTab" class="mt-4">
+        <!-- Edit Profile -->
+        <v-window-item value="Edit Profile">
+          <div class="settings-profile">
+            <div class="settings-avatar">
+              <v-avatar size="120">
+                <img src="https://i.pravatar.cc/120?img=47" alt="Profile photo" />
+              </v-avatar>
+              <v-btn
+                icon
+                size="small"
+                color="primary"
+                class="settings-avatar__edit"
+                style="background-color: #396aff !important;"
+              >
+                <v-icon size="16">mdi-pencil</v-icon>
+              </v-btn>
+            </div>
 
-        <v-form class="settings-form" @submit.prevent="handleSave">
-          <div class="settings-form__row">
-            <v-text-field
-              v-model="form.name"
-              label="Your Name"
-              placeholder="Charlene Reed"
-            />
-            <v-text-field
-              v-model="form.username"
-              label="User Name"
-              placeholder="Charlene Reed"
-            />
+            <v-form class="settings-form">
+              <v-row dense>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Your Name</span>
+                  <v-text-field v-model="form.name" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">User Name</span>
+                  <v-text-field v-model="form.username" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Email</span>
+                  <v-text-field v-model="form.email" type="email" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Password</span>
+                  <v-text-field v-model="form.password" type="password" placeholder="**********" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Date of Birth</span>
+                  <v-text-field v-model="form.dob" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Present Address</span>
+                  <v-text-field v-model="form.presentAddress" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Permanent Address</span>
+                  <v-text-field v-model="form.permanentAddress" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">City</span>
+                  <v-text-field v-model="form.city" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Postal Code</span>
+                  <v-text-field v-model="form.postal" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="6">
+                  <span class="settings-form__label">Country</span>
+                  <v-text-field v-model="form.country" variant="outlined" density="comfortable" />
+                </v-col>
+              </v-row>
+
+              <div class="settings-form__actions">
+                <v-btn color="#1814f3" size="x-large" min-width="190" class="text-none">
+                  Save
+                </v-btn>
+              </div>
+            </v-form>
           </div>
-          <div class="settings-form__row">
-            <v-text-field
-              v-model="form.email"
-              label="Email"
-              type="email"
-              placeholder="charlenereed@gmail.com"
-            />
-            <v-text-field
-              v-model="form.password"
-              label="Password"
-              type="password"
-              placeholder="**********"
-            />
+        </v-window-item>
+
+        <!-- Preferences -->
+        <v-window-item value="Preferences">
+          <v-row dense>
+            <v-col cols="12" md="6">
+              <span class="settings-form__label">Currency</span>
+              <v-text-field variant="outlined" density="comfortable" placeholder="USD" />
+            </v-col>
+            <v-col cols="12" md="6">
+              <span class="settings-form__label">Time Zone</span>
+              <v-text-field
+                variant="outlined"
+                density="comfortable"
+                placeholder="(GMT-12:00) International Date Line West"
+              />
+            </v-col>
+          </v-row>
+
+          <h3 class="settings-section-title">Notification</h3>
+
+          <div class="settings-notifications">
+            <div class="settings-notifications__item">
+              <v-switch
+                v-model="notifications.digitalCurrency"
+                color="#16DBCC"
+                hide-details
+                inset
+                density="compact"
+              />
+              <span>I send or receive digita currency</span>
+            </div>
+            <div class="settings-notifications__item">
+              <v-switch
+                v-model="notifications.merchantOrder"
+                color="#16DBCC"
+                hide-details
+                inset
+                density="compact"
+              />
+              <span>I receive merchant order</span>
+            </div>
+            <div class="settings-notifications__item">
+              <v-switch
+                v-model="notifications.recommendations"
+                color="#16DBCC"
+                hide-details
+                inset
+                density="compact"
+              />
+              <span>There are recommendation for my account</span>
+            </div>
           </div>
-          <div class="settings-form__row">
-            <v-text-field
-              v-model="form.dob"
-              label="Date of Birth"
-              placeholder="25 January 1990"
-            />
-            <v-text-field
-              v-model="form.presentAddress"
-              label="Present Address"
-              placeholder="San Jose, California, USA"
-            />
-          </div>
-          <div class="settings-form__row">
-            <v-text-field
-              v-model="form.permanentAddress"
-              label="Permanent Address"
-              placeholder="San Jose, California, USA"
-            />
-            <v-text-field
-              v-model="form.city"
-              label="City"
-              placeholder="San Jose"
-            />
-          </div>
-          <div class="settings-form__row">
-            <v-text-field
-              v-model="form.postal"
-              label="Postal Code"
-              placeholder="45962"
-            />
-            <v-text-field
-              v-model="form.country"
-              label="Country"
-              placeholder="USA"
-            />
-          </div>
-          <div class="settings-form__actions">
-            <v-btn type="submit" color="#1814f3" size="large" min-width="120" class="text-none">
+
+          <div class="settings-form__actions mt-6">
+            <v-btn color="#1814f3" size="x-large" min-width="190" class="text-none">
               Save
             </v-btn>
           </div>
-        </v-form>
-      </v-card>
+        </v-window-item>
 
-      <v-card class="settings-card settings-card--preferences" elevation="0">
-        <v-tabs v-model="activeTab" color="primary" class="settings-tabs">
-          <v-tab v-for="tab in tabs" :key="tab" :value="tab" class="text-none">
-            {{ tab }}
-          </v-tab>
-        </v-tabs>
-
-        <v-window v-model="activeTab">
-          <v-window-item value="Edit Profile">
-            <div class="settings-prefs">
-              <p class="settings-prefs__placeholder">Profile editing happens in the left panel.</p>
+        <!-- Security -->
+        <v-window-item value="Security">
+          <div class="settings-security">
+            <h3 class="settings-section-title">Two-factor Authentication</h3>
+            <div class="settings-notifications__item mt-3">
+              <v-switch
+                v-model="prefs.twoFactor"
+                color="#16DBCC"
+                hide-details
+                inset
+                density="compact"
+              />
+              <span class="settings-notifications__label">Enable or disable two factor authentication</span>
             </div>
-          </v-window-item>
 
-          <v-window-item value="Preference">
-            <div class="settings-prefs">
-              <div v-for="pref in preferenceItems" :key="pref.key" class="pref-item">
-                <div class="pref-item__info">
-                  <span class="pref-item__title">{{ pref.title }}</span>
-                  <span class="pref-item__subtitle">{{ pref.subtitle }}</span>
-                </div>
-                <v-switch
-                  v-model="prefs[pref.key]"
-                  color="primary"
-                  hide-details
-                  inset
-                  density="compact"
-                />
+            <h3 class="settings-section-title mt-6">Change Password</h3>
+            <v-form class="settings-password-form">
+              <v-row dense>
+                <v-col cols="12" md="8">
+                  <span class="settings-form__label">Current Password</span>
+                  <v-text-field type="password" placeholder="**********" variant="outlined" density="comfortable" />
+                </v-col>
+                <v-col cols="12" md="8" class="mt-2">
+                  <span class="settings-form__label">New Password</span>
+                  <v-text-field type="password" placeholder="**********" variant="outlined" density="comfortable" />
+                </v-col>
+              </v-row>
+
+              <div class="settings-form__actions mt-6">
+                <v-btn color="#1814f3" size="x-large" min-width="190" class="text-none">
+                  Save
+                </v-btn>
               </div>
-            </div>
-          </v-window-item>
-
-          <v-window-item value="Security">
-            <div class="settings-prefs">
-              <p class="settings-prefs__placeholder">Security settings coming soon.</p>
-            </div>
-          </v-window-item>
-        </v-window>
-      </v-card>
-    </div>
-
-    <v-snackbar
-      v-model="toast.show"
-      :color="toast.isError ? 'error' : 'success'"
-      location="bottom right"
-      timeout="3000"
-    >
-      <div class="toast-content">
-        <svg
-          v-if="!toast.isError"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-          <polyline points="22 4 12 14.01 9 11.01" />
-        </svg>
-        <span>{{ toast.message }}</span>
-      </div>
-    </v-snackbar>
+            </v-form>
+          </div>
+        </v-window-item>
+      </v-window>
+    </v-card>
   </div>
 </template>
-
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
-
-definePageMeta({
-  title: 'Setting',
-})
-
-useHead({ title: 'Settings - BankDash' })
-
-interface ProfileForm {
-  name: string
-  username: string
-  email: string
-  password: string
-  dob: string
-  presentAddress: string
-  permanentAddress: string
-  city: string
-  postal: string
-  country: string
-}
-
-interface Preferences {
-  twoFactor: boolean
-  newsletter: boolean
-  pushNotif: boolean
-  smsNotif: boolean
-}
-
-const tabs = ['Edit Profile', 'Preference', 'Security'] as const
-type Tab = typeof tabs[number]
-const activeTab = ref<Tab>('Edit Profile')
-
-const form = reactive<ProfileForm>({
-  name: '',
-  username: '',
-  email: '',
-  password: '',
-  dob: '',
-  presentAddress: '',
-  permanentAddress: '',
-  city: '',
-  postal: '',
-  country: '',
-})
-
-const prefs = reactive<Preferences>({
-  twoFactor: false,
-  newsletter: false,
-  pushNotif: false,
-  smsNotif: false,
-})
-
-const preferenceItems = [
-  { key: 'twoFactor' as const, title: 'Two-factor Authentication', subtitle: 'Enable extra security for your account' },
-  { key: 'newsletter' as const, title: 'Newsletter & Updates', subtitle: 'Receive updates and newsletters via email' },
-  { key: 'pushNotif' as const, title: 'Push Notifications', subtitle: 'Get push notifications on your device' },
-  { key: 'smsNotif' as const, title: 'SMS Notifications', subtitle: 'Get important alerts via text message' },
-]
-
-const { data } = await useApi<{
-  profile: ProfileForm
-  preferences: Preferences
-}>('/settings')
-
-if (data.value) {
-  Object.assign(form, { ...data.value.profile, password: '' })
-  Object.assign(prefs, data.value.preferences)
-}
-
-interface ToastState {
-  show: boolean
-  message: string
-  isError: boolean
-}
-const toast = ref<ToastState>({ show: false, message: '', isError: false })
-
-async function handleSave() {
-  const { error } = await useApi('/settings', {
-    method: 'POST',
-    body: { profile: form, preferences: prefs },
-  })
-
-  toast.value = {
-    show: true,
-    message: error.value ? 'Error updating profile settings.' : 'Profile settings updated successfully!',
-    isError: !!error.value,
-  }
-}
-</script>
 
 <style scoped>
 .settings-page {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.75rem;
 }
 
-.settings-page__grid {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 1.25rem;
-  align-items: start;
-}
-
-.settings-card {
+.data-card {
   padding: 2rem !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
 }
 
-.settings-card__title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 2rem;
+.settings-tabs :deep(.v-tab) {
+  font-weight: 500;
+  color: #b1b1b1;
+  font-size: 0.9375rem;
+}
+
+.settings-tabs :deep(.v-tab--selected) {
+  color: #1814f3;
+  font-weight: 600;
+}
+
+.settings-profile {
+  display: flex;
+  flex-direction: column;
 }
 
 .settings-avatar {
   position: relative;
-  width: 90px;
+  width: fit-content;
   margin: 0 auto 2rem;
+  flex-shrink: 0;
 }
 
 .settings-avatar__edit {
@@ -299,89 +264,58 @@ async function handleSave() {
 }
 
 .settings-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+  flex: 1;
 }
 
-.settings-form__row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+.settings-password-form {
+  max-width: 600px;
+}
+
+@media (min-width: 960px) {
+  .settings-profile {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .settings-avatar {
+    margin: 0 0 0 1.5rem !important;
+    padding-top: 1rem;
+  }
+}
+
+.settings-form__label {
+  display: block;
+  font-size: 0.9375rem;
+  color: #343c6a;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
 .settings-form__actions {
   display: flex;
   justify-content: flex-end;
+  margin-top: 1.5rem;
 }
 
-.settings-tabs {
-  margin-bottom: 1.75rem;
+.settings-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #343c6a;
+  margin: 1.5rem 0 1rem;
 }
 
-.settings-prefs {
+.settings-notifications {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
-.settings-prefs__placeholder {
-  color: var(--color-text-muted);
-  padding: 1.5rem 0;
-  text-align: center;
-}
-
-.pref-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.875rem 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.pref-item:last-child {
-  border-bottom: none;
-}
-
-.pref-item__info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  flex: 1;
-}
-
-.pref-item__title {
-  font-size: var(--font-size-base);
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.pref-item__subtitle {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-light);
-}
-
-.toast-content {
+.settings-notifications__item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-@media (max-width: 1100px) {
-  .settings-page__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-form__row {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .settings-card {
-    padding: 1.25rem !important;
-  }
+  gap: 1rem;
+  font-size: 0.9375rem;
+  color: #343c6a;
 }
 </style>

@@ -1,9 +1,11 @@
 <script setup>
-useHead({
-  title: 'Dashboard',
-})
+useHead({ title: 'Overview' })
 
 const { data: dashboard } = await useApi('/dashboard', { key: 'dashboard' })
+
+definePageMeta({
+  title: 'Overview',
+})
 </script>
 
 <template>
@@ -18,8 +20,8 @@ const { data: dashboard } = await useApi('/dashboard', { key: 'dashboard' })
       </v-col>
     </v-row>
 
-    <!-- Row 2: Weekly Activity + Expense Statistics -->
-    <v-row dense class="mt-2">
+    <!-- Row 2: Weekly Activity + Expense Statistics (donut) -->
+    <v-row dense class="mt-3">
       <v-col cols="12" lg="7">
         <DashboardCardsWeeklyActivity :data="dashboard?.weekly_activity" />
       </v-col>
@@ -29,7 +31,7 @@ const { data: dashboard } = await useApi('/dashboard', { key: 'dashboard' })
     </v-row>
 
     <!-- Row 3: Quick Transfer + Balance History -->
-    <v-row dense class="mt-2">
+    <v-row dense class="mt-3">
       <v-col cols="12" lg="5">
         <DashboardCardsQuickTransfer :contacts="dashboard?.quick_transfer" />
       </v-col>
@@ -44,6 +46,6 @@ const { data: dashboard } = await useApi('/dashboard', { key: 'dashboard' })
 .dashboard-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 </style>

@@ -9,31 +9,52 @@ const props = defineProps({
 })
 
 const stats = computed(() => props.data || [])
+
+// Build donut chart paths using SVG
+const donutSegments = computed(() => {
+  const total = stats.value.reduce((acc, item) => acc + item.percentage, 0) || 100
+  const radius = 80
+  const center = 100
+  let cumulativePercentage = 0
+
+  return stats.value.map((item) => {
+    const percentage = (item.percentage / total) * 100
+    const startAngle = (cumulativePercentage / 100) * 360 - 90
+    cumulativePercentage += percentage
+    const endAngle = (cumulativePercentage / 100) * 360 - 90
+
+    const startX = center + radius * Math.cos((startAngle * Math.PI) / 180)
+    const startY = center + radius * Math.sin((startAngle * Math.PI) / 180)
+    const endX = center + radius * Math.cos((endAngle * Math.PI) / 180)
+    const endY = center + radius * Math.sin((endAngle * Math.PI) / 180)
+
+    const largeArc = percentage > 50 ? 1 : 0
+
+    return {
+      path: `M ${startX} ${startY} A ${radius} ${radius} 0 ${largeArc} 1 ${endX} ${endY}`,
+      color: item.color,
+      label: item.label,
+      percentage: item.percentage,
+    }
+  })
+})
 </script>
 
 <template>
-  <v-card class="expense-statistics" elevation="0">
-    <h2 class="text-h6 font-weight-bold mb-4">Expense Statistics</h2>
+  <v-card class="expense-statistics" elevation="0" rounded="xl">
+    <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-4">Expense Statistics</h2>
 
     <div class="expense-statistics__chart">
-      <div
-        v-for="(item, idx) in stats"
-        :key="idx"
-        class="expense-statistics__item"
-      >
-        <div
-          class="expense-statistics__bar"
-          :style="{
-            height: `${item.percentage * 1.5}px`,
-            backgroundColor: item.color,
-          }"
-        />
-        <span
-          v-if="idx === 1 || idx === 2"
-          class="expense-statistics__bar-shadow"
-          :style="{ backgroundColor: item.color }"
-        />
-      </div>
+      <svg viewBox="0 0 200 200" class="expense-statistics__svg">
+        <g fill="none" stroke-width="28">
+          <path
+            v-for="(segment, idx) in donutSegments"
+            :key="idx"
+            :d="segment.path"
+            :stroke="segment.color"
+          />
+        </g>
+      </svg>
     </div>
 
     <div class="expense-statistics__legend">
@@ -46,10 +67,8 @@ const stats = computed(() => props.data || [])
           class="expense-statistics__legend-dot"
           :style="{ backgroundColor: item.color }"
         />
-        <div class="expense-statistics__legend-text">
-          <span class="expense-statistics__legend-label">{{ item.label }}</span>
-          <span class="expense-statistics__legend-value">{{ item.percentage }}%</span>
-        </div>
+        <span class="expense-statistics__legend-label">{{ item.label }}</span>
+        <span class="expense-statistics__legend-value">{{ item.percentage }}%</span>
       </div>
     </div>
   </v-card>
@@ -58,63 +77,39 @@ const stats = computed(() => props.data || [])
 <style scoped>
 .expense-statistics {
   padding: 1.5rem !important;
-  background: transparent !important;
-  border: 1px solid rgb(var(--v-theme-grey-100));
+  background: #ffffff !important;
+  border-radius: 25px !important;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .expense-statistics__chart {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-  height: 130px;
-  padding: 1rem 0 0;
-  margin-bottom: 1.5rem;
-}
-
-.expense-statistics__item {
   flex: 1;
-  position: relative;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-end;
-  height: 100%;
+  padding: 1.5rem 0;
+  min-height: 220px;
 }
 
-.expense-statistics__bar {
-  width: 100%;
-  max-width: 30px;
-  border-radius: 12px 12px 0 0;
-  transition: height 0.3s ease;
-  margin: 0 auto;
-}
-
-.expense-statistics__bar-shadow {
-  position: absolute;
-  bottom: -4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 75%;
-  height: 6px;
-  border-radius: 50%;
-  filter: blur(8px);
-  opacity: 0.4;
+.expense-statistics__svg {
+  width: 200px;
+  height: 200px;
 }
 
 .expense-statistics__legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   padding-top: 1rem;
-  border-top: 1px solid rgb(var(--v-theme-grey-100));
 }
 
 .expense-statistics__legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .expense-statistics__legend-dot {
@@ -124,20 +119,15 @@ const stats = computed(() => props.data || [])
   flex-shrink: 0;
 }
 
-.expense-statistics__legend-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
 .expense-statistics__legend-label {
-  font-size: 0.6875rem;
-  color: rgb(var(--v-theme-grey-500));
+  flex: 1;
+  color: #b1b1b1;
+  font-size: 0.8125rem;
 }
 
 .expense-statistics__legend-value {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text);
+  font-weight: 700;
+  color: #343c6a;
+  font-size: 0.9375rem;
 }
 </style>

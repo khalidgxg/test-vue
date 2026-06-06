@@ -5,16 +5,16 @@ const { data } = await useApi('/dashboard', { key: 'dashboard' })
 
 const iconMap = {
   card: 'mdi-credit-card-outline',
-  paypal: 'mdi-paypal',
+  paypal: 'mdi-alpha-p-box',
   user: 'mdi-account-circle-outline',
 }
 
-const toneColorMap = {
+const toneMap = {
   yellow: { bg: '#FFF5D9', color: '#FFBB38' },
   blue: { bg: '#E7EDFF', color: '#396AFF' },
   cyan: { bg: '#DCFAF8', color: '#16DBCC' },
-  pink: { bg: '#FFE0EB', color: '#FF4B4A' },
   teal: { bg: '#DCFAF8', color: '#16DBCC' },
+  pink: { bg: '#FFE0EB', color: '#FF4B4A' },
 }
 
 const transactions = computed(() => {
@@ -36,8 +36,8 @@ function formatNumber(num) {
 </script>
 
 <template>
-  <v-card class="recent-transaction" elevation="0">
-    <h2 class="text-h6 font-weight-bold mb-3">Recent Transaction</h2>
+  <v-card class="recent-transaction" elevation="0" rounded="xl">
+    <h2 class="text-h6 font-weight-bold text-grey-darken-4 mb-3">Recent Transaction</h2>
 
     <div class="recent-transaction__list">
       <div
@@ -46,12 +46,13 @@ function formatNumber(num) {
         class="transaction-item"
       >
         <v-avatar
-          :color="toneColorMap[transaction.tone]?.bg || '#F5F7FA'"
-          size="48"
+          :color="toneMap[transaction.tone]?.bg || '#F5F7FA'"
+          size="55"
+          rounded="circle"
         >
           <v-icon
-            :color="toneColorMap[transaction.tone]?.color || '#B1B1B1'"
-            size="22"
+            :color="toneMap[transaction.tone]?.color || '#B1B1B1'"
+            size="24"
           >
             {{ transaction.icon }}
           </v-icon>
@@ -75,51 +76,52 @@ function formatNumber(num) {
 <style scoped>
 .recent-transaction {
   padding: 1.5rem !important;
-  background: transparent !important;
-  border: 1px solid rgb(var(--v-theme-grey-100));
+  background: #ffffff !important;
+  border-radius: 25px !important;
   height: 100%;
 }
 
 .recent-transaction__list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .transaction-item {
   display: flex;
   align-items: center;
-  gap: 0.875rem;
+  gap: 1rem;
 }
 
 .transaction-item__info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .transaction-item__name {
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--color-text);
+  color: #343c6a;
 }
 
 .transaction-item__date {
   font-size: 0.75rem;
-  color: rgb(var(--v-theme-grey-300, 177 177 177));
+  color: #b1b1b1;
 }
 
 .transaction-item__amount {
-  font-size: 0.9375rem;
+  font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .transaction-item__amount--income {
-  color: rgb(var(--v-theme-success));
+  color: #41d4a8;
 }
 
 .transaction-item__amount--expense {
-  color: rgb(var(--v-theme-error));
+  color: #ff4b4a;
 }
 </style>

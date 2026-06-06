@@ -17,14 +17,14 @@ watch(
 )
 
 const navItems = [
-  { to: '/', label: 'nav.dashboard', icon: 'mdi-view-dashboard-outline' },
+  { to: '/', label: 'nav.dashboard', icon: 'mdi-home' },
   { to: '/transactions', label: 'nav.transactions', icon: 'mdi-swap-horizontal' },
   { to: '/accounts', label: 'nav.accounts', icon: 'mdi-account-outline' },
   { to: '/investments', label: 'nav.investments', icon: 'mdi-chart-line' },
   { to: '/credit-cards', label: 'nav.credit_cards', icon: 'mdi-credit-card-outline' },
   { to: '/loans', label: 'nav.loans', icon: 'mdi-water-outline' },
-  { to: '/services', label: 'nav.services', icon: 'mdi-cog-outline' },
-  { to: '/my-privileges', label: 'nav.privileges', icon: 'mdi-check-decagram-outline' },
+  { to: '/services', label: 'nav.services', icon: 'mdi-toolbox-outline' },
+  { to: '/my-privileges', label: 'nav.privileges', icon: 'mdi-gift-outline' },
   { to: '/settings', label: 'nav.settings', icon: 'mdi-cog-outline' },
 ]
 </script>
@@ -36,9 +36,11 @@ const navItems = [
     :temporary="mdAndDown"
     width="250"
     class="dashboard-sidebar"
-    color="surface"
+    color="white"
+    elevation="0"
   >
-    <div class="sidebar-brand pa-5 d-flex align-center ga-2">
+    <!-- Logo / Brand -->
+    <div class="sidebar-brand pa-6 d-flex align-center ga-3">
       <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
         <rect width="36" height="36" rx="8" fill="#396AFF" />
         <path
@@ -54,17 +56,17 @@ const navItems = [
           stroke-linecap="round"
         />
       </svg>
-      <span class="text-h6 font-weight-bold">BankDash.</span>
+      <span class="text-h6 font-weight-bold text-grey-darken-4">BankDash.</span>
     </div>
 
-    <v-list nav density="comfortable" class="px-3">
+    <!-- Nav items -->
+    <v-list density="comfortable" class="py-2 sidebar-nav">
       <v-list-item
         v-for="item in navItems"
         :key="item.to"
         :to="item.to"
         :prepend-icon="item.icon"
         :title="t(item.label)"
-        rounded="lg"
         color="primary"
         class="sidebar-link mb-1"
         exact
@@ -79,15 +81,36 @@ const navItems = [
 }
 
 .sidebar-brand {
-  border-bottom: 1px solid #e6eff5;
-  margin-bottom: 0.5rem;
+  min-height: 90px;
 }
 
 .sidebar-link {
+  position: relative;
   font-weight: 500;
-  color: #6b6b6b;
-  min-height: 48px;
-  border-radius: 0.75rem !important;
+  color: #b1b1b1;
+  min-height: 50px;
+  border-radius: 0 !important;
+  padding-inline-start: 2rem !important;
+  padding-inline-end: 1.5rem !important;
+  transition: all 0.2s ease;
+}
+
+.sidebar-link::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 6px;
+  background-color: transparent;
+  border-radius: 0 4px 4px 0;
+  transition: background-color 0.2s ease;
+}
+
+html[dir="rtl"] .sidebar-link::before {
+  left: auto;
+  right: 0;
+  border-radius: 4px 0 0 4px;
 }
 
 .sidebar-link :deep(.v-list-item-title) {
@@ -95,12 +118,31 @@ const navItems = [
   font-weight: 500;
 }
 
+.sidebar-link :deep(.v-list-item__prepend > .v-icon) {
+  color: #b1b1b1;
+  font-size: 1.25rem;
+  margin-inline-end: 1rem;
+}
+
+.sidebar-link.v-list-item--active::before {
+  background-color: #396aff;
+}
+
 .sidebar-link.v-list-item--active {
-  background-color: rgba(57, 106, 255, 0.08) !important;
+  background-color: transparent !important;
   color: #396aff !important;
 }
 
 .sidebar-link.v-list-item--active :deep(.v-list-item__prepend > .v-icon) {
+  color: #396aff !important;
+}
+
+.sidebar-link:hover:not(.v-list-item--active) {
+  background-color: rgba(57, 106, 255, 0.04) !important;
+  color: #396aff !important;
+}
+
+.sidebar-link:hover:not(.v-list-item--active) :deep(.v-list-item__prepend > .v-icon) {
   color: #396aff !important;
 }
 </style>
