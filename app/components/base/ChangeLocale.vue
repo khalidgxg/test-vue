@@ -1,6 +1,21 @@
 <script setup>
 const { locale, locales, setLocale } = useI18n()
 
+defineProps({
+  variant: {
+    type: String,
+    default: 'text'
+  },
+  color: {
+    type: String,
+    default: 'transparent'
+  },
+  iconColor: {
+    type: String,
+    default: 'primary'
+  }
+})
+
 const currentLocale = computed(() => locale.value)
 
 const availableLocales = computed(() => locales.value)
@@ -16,10 +31,11 @@ function changeLocale(code) {
       <v-btn
         v-bind="menuProps"
         icon
-        variant="text"
+        :variant="variant"
+        :color="color"
         :aria-label="currentLocale"
       >
-        <v-icon>mdi-translate</v-icon>
+        <v-icon :color="iconColor">mdi-translate</v-icon>
       </v-btn>
     </template>
     <v-list density="compact">

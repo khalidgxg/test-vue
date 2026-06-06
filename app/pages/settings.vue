@@ -260,7 +260,7 @@ const notifications = ref({
 .settings-avatar__edit {
   position: absolute !important;
   bottom: 0;
-  right: 0;
+  inset-inline-end: 0;
 }
 
 .settings-form {
@@ -279,7 +279,8 @@ const notifications = ref({
   }
 
   .settings-avatar {
-    margin: 0 0 0 1.5rem !important;
+    margin: 0 !important;
+    margin-inline-start: 1.5rem !important;
     padding-top: 1rem;
   }
 }

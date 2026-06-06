@@ -79,8 +79,9 @@ const iconTone = {
   display: flex !important;
   align-items: center !important;
   gap: 1rem;
-  background: transparent !important;
-  border: 1px solid #e6eff5;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
 }
 
 .privilege-card__info {
@@ -103,8 +104,9 @@ const iconTone = {
 
 .data-card {
   padding: 1.5rem !important;
-  background: transparent !important;
-  border: 1px solid #e6eff5;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 25px !important;
 }
 
 .points-list {

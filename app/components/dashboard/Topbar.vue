@@ -52,6 +52,13 @@ function onLogout() {
       class="topbar-search d-none d-md-flex"
     />
 
+    <BaseChangeLocale
+      variant="flat"
+      color="#F5F7FA"
+      icon-color="#718EBF"
+      class="ml-2 topbar-btn"
+    />
+
     <v-btn
       icon
       variant="flat"

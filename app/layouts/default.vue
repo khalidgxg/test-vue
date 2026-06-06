@@ -13,7 +13,7 @@
   </v-app>
 </template>
 
-<style scoped>
+<style>
 .dashboard-main {
   background-color: #ffffff;
   min-height: 100vh;
